@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/ahmedatwa/Downloads/Komposed/sample/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5957305468005198482.xml:2:13-83
+INJECTED from /Users/ahmedatwa/Downloads/Komposed/sample/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5957305468005198482.xml:2:13-83
+	package
+		INJECTED from /Users/ahmedatwa/Downloads/Komposed/sample/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5957305468005198482.xml
+	xmlns:android
+		ADDED from /Users/ahmedatwa/Downloads/Komposed/sample/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5957305468005198482.xml:2:23-81
+uses-sdk
+INJECTED from /Users/ahmedatwa/Downloads/Komposed/sample/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5957305468005198482.xml reason: use-sdk injection requested
+INJECTED from /Users/ahmedatwa/Downloads/Komposed/sample/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5957305468005198482.xml
+INJECTED from /Users/ahmedatwa/Downloads/Komposed/sample/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5957305468005198482.xml
+	android:targetSdkVersion
+		INJECTED from /Users/ahmedatwa/Downloads/Komposed/sample/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5957305468005198482.xml
+	android:minSdkVersion
+		INJECTED from /Users/ahmedatwa/Downloads/Komposed/sample/core/navigation/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5957305468005198482.xml

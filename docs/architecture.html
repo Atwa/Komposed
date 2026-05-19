@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Komposed — Architecture Reference</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --indigo: #818cf8;
+      --indigo-bg: #1e1b4b;
+      --indigo-stroke: #6366f1;
+      --teal: #2dd4bf;
+      --teal-bg: #042f2e;
+      --teal-stroke: #0d9488;
+      --green: #4ade80;
+      --green-bg: #052e16;
+      --green-stroke: #16a34a;
+      --orange: #fb923c;
+      --orange-bg: #431407;
+      --orange-stroke: #ea580c;
+      --blue: #60a5fa;
+      --blue-bg: #172554;
+      --blue-stroke: #2563eb;
+      --purple: #c084fc;
+      --purple-bg: #2e1065;
+      --purple-stroke: #9333ea;
+      --amber: #fbbf24;
+      --amber-bg: #451a03;
+      --amber-stroke: #d97706;
+      --red: #f87171;
+      --red-bg: #450a0a;
+      --red-stroke: #dc2626;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.6;
+      padding: 48px 24px;
+    }
+    .page { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 2rem; font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #818cf8 0%, #2dd4bf 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .subtitle { color: var(--muted); font-size: 1rem; margin-bottom: 60px; }
+    .section { margin-bottom: 72px; }
+    h2 {
+      font-size: 1.25rem; font-weight: 700; color: var(--text);
+      border-left: 3px solid var(--indigo-stroke);
+      padding-left: 12px; margin-bottom: 20px;
+    }
+    .desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; max-width: 680px; }
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; overflow-x: auto;
+    }
+    svg { display: block; max-width: 100%; height: auto; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 16px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--muted); }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Komposed Architecture</h1>
+  <p class="subtitle">Visual reference for component hierarchy and data flow</p>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DIAGRAM 1 — Unidirectional Data Flow
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>1 — Unidirectional Data Flow</h2>
+    <p class="desc">Every state change follows a single predictable path. Actions flow down through middleware into reducers; new state and effects flow back up to the UI.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 720 760" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#4b5563"/>
+          </marker>
+          <marker id="arr-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#16a34a"/>
+          </marker>
+          <marker id="arr-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#ea580c"/>
+          </marker>
+          <marker id="arr-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#2563eb"/>
+          </marker>
+          <marker id="arr-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#9333ea"/>
+          </marker>
+        </defs>
+
+        <!-- ── Compose UI ── -->
+        <rect x="30" y="20" width="660" height="76" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+        <text x="360" y="50" text-anchor="middle" fill="#a5b4fc" font-size="13" font-weight="700">Compose UI</text>
+        <text x="360" y="70" text-anchor="middle" fill="#6366f1" font-size="11">collectAsStateWithLifecycle(store.state)   ·   store.dispatch(action)</text>
+        <text x="360" y="88" text-anchor="middle" fill="#4f46e5" font-size="10">Recomposes automatically whenever StateFlow emits a new value</text>
+
+        <!-- arrow: UI → Middleware -->
+        <line x1="360" y1="96" x2="360" y2="126" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="375" y="116" fill="#6b7280" font-size="10" font-style="italic">dispatch(Action)</text>
+
+        <!-- ── Middleware Chain ── -->
+        <rect x="30" y="130" width="660" height="76" rx="10" fill="#170c3a" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="360" y="160" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">Middleware Chain</text>
+        <text x="360" y="180" text-anchor="middle" fill="#9333ea" font-size="11">loggingMiddleware  →  analyticsMiddleware  →  navigationMiddleware</text>
+        <text x="360" y="198" text-anchor="middle" fill="#6d28d9" font-size="10">Each calls next(action) to forward; can intercept, log, or swallow actions</text>
+
+        <!-- arrow: Middleware → Router -->
+        <line x1="360" y1="206" x2="360" y2="236" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="375" y="226" fill="#6b7280" font-size="10" font-style="italic">next(action)</text>
+
+        <!-- ── Action Router ── -->
+        <rect x="30" y="240" width="660" height="64" rx="10" fill="#172554" stroke="#2563eb" stroke-width="1.5"/>
+        <text x="360" y="268" text-anchor="middle" fill="#93c5fd" font-size="13" font-weight="700">Action Router</text>
+        <text x="360" y="288" text-anchor="middle" fill="#3b82f6" font-size="11">Map&lt;KClass&lt;*&gt;, PureReducer&lt;S, Any&gt;&gt;  ·  matched by action::class</text>
+
+        <!-- arrow: Router → Reducer -->
+        <line x1="360" y1="304" x2="360" y2="334" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="375" y="324" fill="#6b7280" font-size="10" font-style="italic">invoke(state, action)</text>
+
+        <!-- ── PureReducer ── -->
+        <rect x="30" y="338" width="660" height="64" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5"/>
+        <text x="360" y="367" text-anchor="middle" fill="#5eead4" font-size="13" font-weight="700">PureReducer&lt;S, A&gt;</text>
+        <text x="360" y="388" text-anchor="middle" fill="#0d9488" font-size="11">(state: S, action: A) → ReduceType&lt;S, A&gt;   ·   pure function — no I/O, no coroutines</text>
+
+        <!-- vertical stem to fork -->
+        <line x1="360" y1="402" x2="360" y2="428" stroke="#374151" stroke-width="1.5"/>
+        <!-- fork horizontal bar -->
+        <line x1="155" y1="428" x2="565" y2="428" stroke="#374151" stroke-width="1.5"/>
+        <!-- fork branches down -->
+        <line x1="155" y1="428" x2="155" y2="454" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arr-green)"/>
+        <line x1="360" y1="428" x2="360" y2="454" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="565" y1="428" x2="565" y2="454" stroke="#ea580c" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+        <!-- ── Reduce box ── -->
+        <rect x="50" y="458" width="210" height="70" rx="10" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+        <text x="155" y="484" text-anchor="middle" fill="#86efac" font-size="12" font-weight="700">Reduce</text>
+        <text x="155" y="502" text-anchor="middle" fill="#4ade80" font-size="10">state.reduce()</text>
+        <text x="155" y="518" text-anchor="middle" fill="#15803d" font-size="10">pure state transition only</text>
+
+        <!-- ── ReduceWithEffect box ── -->
+        <rect x="255" y="458" width="210" height="70" rx="10" fill="#1c1917" stroke="#78716c" stroke-width="1.5"/>
+        <text x="360" y="484" text-anchor="middle" fill="#d6d3d1" font-size="12" font-weight="700">ReduceWithEffect</text>
+        <text x="360" y="502" text-anchor="middle" fill="#a8a29e" font-size="10">state.withEffect &#123; ... &#125;</text>
+        <text x="360" y="518" text-anchor="middle" fill="#78716c" font-size="10">state change + async effect</text>
+
+        <!-- ── SideEffect box ── -->
+        <rect x="460" y="458" width="210" height="70" rx="10" fill="#431407" stroke="#ea580c" stroke-width="1.5"/>
+        <text x="565" y="484" text-anchor="middle" fill="#fdba74" font-size="12" font-weight="700">SideEffect</text>
+        <text x="565" y="502" text-anchor="middle" fill="#fb923c" font-size="10">effect &#123; ... &#125;</text>
+        <text x="565" y="518" text-anchor="middle" fill="#c2410c" font-size="10">effect only, state unchanged</text>
+
+        <!-- arrows: Reduce → StateFlow -->
+        <line x1="155" y1="528" x2="155" y2="588" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arr-green)"/>
+
+        <!-- arrows: ReduceWithEffect → StateFlow + Effect -->
+        <path d="M 330 528 Q 280 558 235 588" stroke="#4b5563" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+        <path d="M 390 528 Q 440 558 490 588" stroke="#4b5563" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+        <!-- arrow: SideEffect → Effect -->
+        <line x1="565" y1="528" x2="565" y2="588" stroke="#ea580c" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+        <!-- ── StateFlow box ── -->
+        <rect x="50" y="592" width="370" height="64" rx="10" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+        <text x="235" y="621" text-anchor="middle" fill="#86efac" font-size="12" font-weight="700">StateFlow&lt;S&gt;</text>
+        <text x="235" y="641" text-anchor="middle" fill="#4ade80" font-size="11">_state.update &#123; result.state &#125;  ·  UI recompose triggered</text>
+
+        <!-- ── Effect Coroutine box ── -->
+        <rect x="440" y="592" width="230" height="64" rx="10" fill="#431407" stroke="#ea580c" stroke-width="1.5"/>
+        <text x="555" y="617" text-anchor="middle" fill="#fdba74" font-size="12" font-weight="700">Effect Coroutine</text>
+        <text x="555" y="634" text-anchor="middle" fill="#fb923c" font-size="10">scope.launch &#123; handleEffect(effect) &#125;</text>
+        <text x="555" y="650" text-anchor="middle" fill="#c2410c" font-size="10">ActionableEffect · FlowEffect · SuspendEffect</text>
+
+        <!-- StateFlow → UI (loop back, left side) -->
+        <path d="M 50 624 L 18 624 L 18 58 L 30 58" stroke="#16a34a" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-green)"/>
+
+        <!-- Effect result → dispatch loop (right side) -->
+        <path d="M 670 624 L 702 624 L 702 58 L 690 58" stroke="#ea580c" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-orange)"/>
+        <text x="360" y="715" text-anchor="middle" fill="#6b7280" font-size="11" font-style="italic">Effect result re-enters as dispatch(action) — passes through full middleware chain</text>
+
+        <!-- Left side label -->
+        <text x="9" y="400" fill="#16a34a" font-size="10" transform="rotate(-90,9,400)" text-anchor="middle">new state → UI</text>
+        <!-- Right side label -->
+        <text x="711" y="400" fill="#ea580c" font-size="10" transform="rotate(90,711,400)" text-anchor="middle">result action → dispatch</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#6366f1"></span>UI / Store boundary</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span>Middleware</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#2563eb"></span>Action routing</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#0d9488"></span>Reducer (pure)</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#16a34a"></span>State update</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#ea580c"></span>Effect / async</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DIAGRAM 2 — Reducer Type Hierarchy
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>2 — Reducer Type Hierarchy</h2>
+    <p class="desc">How a <code style="color:#2dd4bf">Reducer</code> with dependencies becomes a registered <code style="color:#2dd4bf">PureReducer</code> in the store's action map.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 720 480" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
+        <defs>
+          <marker id="arr2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#4b5563"/>
+          </marker>
+          <marker id="arr2-teal" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#0d9488"/>
+          </marker>
+        </defs>
+
+        <!-- Step 1: Reducer lambda -->
+        <rect x="30" y="20" width="310" height="80" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5"/>
+        <text x="185" y="48" text-anchor="middle" fill="#5eead4" font-size="12" font-weight="700">reducer&lt;S, A, H&gt; &#123; ... &#125;</text>
+        <text x="185" y="68" text-anchor="middle" fill="#0d9488" font-size="11">(state: S, action: A, handler: H) → ReduceType</text>
+        <text x="185" y="86" text-anchor="middle" fill="#134e4a" font-size="10">Reducer lambda with injected dependency H</text>
+
+        <!-- Step 2: pureReducer lambda -->
+        <rect x="380" y="20" width="310" height="80" rx="10" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+        <text x="535" y="48" text-anchor="middle" fill="#86efac" font-size="12" font-weight="700">pureReducer&lt;S, A&gt; &#123; ... &#125;</text>
+        <text x="535" y="68" text-anchor="middle" fill="#4ade80" font-size="11">(state: S, action: A) → ReduceType</text>
+        <text x="535" y="86" text-anchor="middle" fill="#15803d" font-size="10">No dependencies — already a PureReducer</text>
+
+        <!-- Step 1 → ReducerFactory -->
+        <line x1="185" y1="100" x2="185" y2="165" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <text x="200" y="138" fill="#6b7280" font-size="10" font-style="italic">wraps into</text>
+
+        <!-- ReducerFactory box -->
+        <rect x="30" y="168" width="310" height="70" rx="10" fill="#172554" stroke="#2563eb" stroke-width="1.5"/>
+        <text x="185" y="196" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="700">ReducerFactory&lt;S, A, H&gt;</text>
+        <text x="185" y="214" text-anchor="middle" fill="#3b82f6" font-size="11">.provide(handler: H) → PureReducer&lt;S, A&gt;</text>
+        <text x="185" y="230" text-anchor="middle" fill="#1d4ed8" font-size="10">Partially applies handler; defers binding to ViewModel</text>
+
+        <!-- ReducerFactory → PureReducer (via provide) -->
+        <line x1="185" y1="238" x2="185" y2="288" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arr2-teal)"/>
+        <text x="200" y="268" fill="#0d9488" font-size="10" font-style="italic">.provide(handler)</text>
+
+        <!-- pureReducer → PureReducer directly -->
+        <path d="M 535 100 L 535 308" stroke="#16a34a" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arr2)"/>
+        <text x="550" y="210" fill="#6b7280" font-size="10" font-style="italic">already PureReducer</text>
+
+        <!-- PureReducer box -->
+        <rect x="200" y="292" width="320" height="70" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5"/>
+        <text x="360" y="320" text-anchor="middle" fill="#5eead4" font-size="13" font-weight="700">PureReducer&lt;S, A&gt;</text>
+        <text x="360" y="340" text-anchor="middle" fill="#0d9488" font-size="11">typealias: (S, A) → ReduceType&lt;S, A&gt;</text>
+        <text x="360" y="355" text-anchor="middle" fill="#134e4a" font-size="10">Pure function — the unit of test</text>
+
+        <!-- PureReducer → pullback -->
+        <line x1="360" y1="362" x2="360" y2="410" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <text x="375" y="390" fill="#6b7280" font-size="10" font-style="italic">.pullback(lens) or .scoped(handler, lens)</text>
+
+        <!-- Lifted PureReducer box -->
+        <rect x="130" y="414" width="500" height="52" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+        <text x="380" y="439" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700">PureReducer&lt;GLOBAL, A&gt;</text>
+        <text x="380" y="456" text-anchor="middle" fill="#6366f1" font-size="11">Lifted to global state — registered in Map&lt;KClass&lt;*&gt;, PureReducer&lt;GLOBAL, Any&gt;&gt;</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DIAGRAM 3 — State Composition via Lenses
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>3 — State Composition via Lenses</h2>
+    <p class="desc">A single global state is sliced into feature sub-states using <code style="color:#2dd4bf">Lens&lt;GLOBAL, LOCAL&gt;</code>. Each reducer operates only on its own slice — completely unaware of siblings.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 720 430" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
+        <defs>
+          <marker id="arr3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#4b5563"/>
+          </marker>
+          <marker id="arr3r" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+            <polygon points="8 0,0 3,8 6" fill="#4b5563"/>
+          </marker>
+        </defs>
+
+        <!-- Global State box -->
+        <rect x="240" y="20" width="240" height="100" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="2"/>
+        <text x="360" y="50" text-anchor="middle" fill="#a5b4fc" font-size="13" font-weight="700">CheckoutState</text>
+        <line x1="250" y1="60" x2="470" y2="60" stroke="#312e81" stroke-width="1"/>
+        <text x="360" y="78" text-anchor="middle" fill="#818cf8" font-size="11">deliveryState: DeliveryState</text>
+        <text x="360" y="96" text-anchor="middle" fill="#818cf8" font-size="11">billState: BillState</text>
+        <text x="360" y="113" text-anchor="middle" fill="#818cf8" font-size="11">placeOrderState: PlaceOrderState</text>
+
+        <!-- Lens connectors from global state -->
+        <!-- deliveryLens -->
+        <path d="M 240 72 L 175 72 L 175 195" stroke="#4b5563" stroke-width="1.5" fill="none" marker-end="url(#arr3)"/>
+        <!-- billLens -->
+        <line x1="360" y1="120" x2="360" y2="195" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <!-- placeOrderLens -->
+        <path d="M 480 99 L 545 99 L 545 195" stroke="#4b5563" stroke-width="1.5" fill="none" marker-end="url(#arr3)"/>
+
+        <!-- Lens labels -->
+        <text x="135" y="145" fill="#6b7280" font-size="10" font-style="italic">deliveryLens</text>
+        <text x="313" y="165" fill="#6b7280" font-size="10" font-style="italic">billLens</text>
+        <text x="548" y="145" fill="#6b7280" font-size="10" font-style="italic">placeOrderLens</text>
+
+        <!-- DeliveryState box -->
+        <rect x="40" y="198" width="200" height="80" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5"/>
+        <text x="140" y="222" text-anchor="middle" fill="#5eead4" font-size="12" font-weight="700">DeliveryState</text>
+        <line x1="50" y1="230" x2="230" y2="230" stroke="#134e4a" stroke-width="1"/>
+        <text x="140" y="248" text-anchor="middle" fill="#2dd4bf" font-size="10">isLoading, addresses</text>
+        <text x="140" y="264" text-anchor="middle" fill="#2dd4bf" font-size="10">selectedAddressId, error</text>
+
+        <!-- BillState box -->
+        <rect x="260" y="198" width="200" height="80" rx="10" fill="#172554" stroke="#2563eb" stroke-width="1.5"/>
+        <text x="360" y="222" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="700">BillState</text>
+        <line x1="270" y1="230" x2="450" y2="230" stroke="#1e3a8a" stroke-width="1"/>
+        <text x="360" y="248" text-anchor="middle" fill="#60a5fa" font-size="10">isLoading, serviceFees</text>
+        <text x="360" y="264" text-anchor="middle" fill="#60a5fa" font-size="10">orderTotal</text>
+
+        <!-- PlaceOrderState box -->
+        <rect x="480" y="198" width="200" height="80" rx="10" fill="#2e1065" stroke="#9333ea" stroke-width="1.5"/>
+        <text x="580" y="222" text-anchor="middle" fill="#d8b4fe" font-size="12" font-weight="700">PlaceOrderState</text>
+        <line x1="490" y1="230" x2="670" y2="230" stroke="#4c1d95" stroke-width="1"/>
+        <text x="580" y="248" text-anchor="middle" fill="#c084fc" font-size="10">isCheckoutInProgress</text>
+        <text x="580" y="264" text-anchor="middle" fill="#c084fc" font-size="10">errorMessage</text>
+
+        <!-- Arrows from state boxes to reducers -->
+        <line x1="140" y1="278" x2="140" y2="330" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <line x1="360" y1="278" x2="360" y2="330" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <line x1="580" y1="278" x2="580" y2="330" stroke="#9333ea" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+        <!-- Reducer boxes -->
+        <rect x="40" y="334" width="200" height="56" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="140" y="358" text-anchor="middle" fill="#5eead4" font-size="12" font-weight="700">DeliveryReducer</text>
+        <text x="140" y="376" text-anchor="middle" fill="#0d9488" font-size="10">handles DeliveryAction.*</text>
+
+        <rect x="260" y="334" width="200" height="56" rx="10" fill="#172554" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="360" y="358" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="700">BillReducer</text>
+        <text x="360" y="376" text-anchor="middle" fill="#3b82f6" font-size="10">handles BillAction.*</text>
+
+        <rect x="480" y="334" width="200" height="56" rx="10" fill="#2e1065" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="580" y="358" text-anchor="middle" fill="#d8b4fe" font-size="12" font-weight="700">PlaceOrderReducer</text>
+        <text x="580" y="376" text-anchor="middle" fill="#c084fc" font-size="10">handles PlaceOrderAction.*</text>
+
+        <!-- Lens definition callout -->
+        <rect x="160" y="400" width="400" height="24" rx="6" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
+        <text x="360" y="416" text-anchor="middle" fill="#78716c" font-size="10">lens(CheckoutState::deliveryState) &#123; copy(deliveryState = it) &#125;  ·  get + copy-setter pair</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DIAGRAM 4 — Effect Types & Lifecycle
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>4 — Effect Types &amp; Lifecycle</h2>
+    <p class="desc">Effects are the controlled escape hatch for async work. The store launches them in the background and re-dispatches any produced action back through the full middleware chain.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 720 380" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
+        <defs>
+          <marker id="arr4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#4b5563"/>
+          </marker>
+          <marker id="arr4g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#16a34a"/>
+          </marker>
+        </defs>
+
+        <!-- Effect<ACTION> interface -->
+        <rect x="240" y="14" width="240" height="50" rx="10" fill="#1c1917" stroke="#78716c" stroke-width="1.5"/>
+        <text x="360" y="37" text-anchor="middle" fill="#d6d3d1" font-size="13" font-weight="700">Effect&lt;out ACTION&gt;</text>
+        <text x="360" y="54" text-anchor="middle" fill="#78716c" font-size="10">sealed interface — marker for async work</text>
+
+        <!-- Branch lines from Effect to 4 subtypes -->
+        <line x1="360" y1="64" x2="360" y2="90" stroke="#374151" stroke-width="1.5"/>
+        <line x1="88" y1="90" x2="632" y2="90" stroke="#374151" stroke-width="1.5"/>
+        <line x1="88" y1="90" x2="88" y2="120" stroke="#ea580c" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <line x1="272" y1="90" x2="272" y2="120" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <line x1="456" y1="90" x2="456" y2="120" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <line x1="632" y1="90" x2="632" y2="120" stroke="#9333ea" stroke-width="1.5" marker-end="url(#arr4)"/>
+
+        <!-- ActionableEffect -->
+        <rect x="20" y="124" width="200" height="100" rx="10" fill="#431407" stroke="#ea580c" stroke-width="1.5"/>
+        <text x="120" y="150" text-anchor="middle" fill="#fdba74" font-size="12" font-weight="700">ActionableEffect</text>
+        <text x="120" y="168" text-anchor="middle" fill="#fb923c" font-size="10">&lt;out ACTION&gt;</text>
+        <line x1="30" y1="176" x2="210" y2="176" stroke="#7c2d12" stroke-width="1"/>
+        <text x="120" y="192" text-anchor="middle" fill="#c2410c" font-size="10">suspend () → ACTION</text>
+        <text x="120" y="208" text-anchor="middle" fill="#9a3412" font-size="10">dispatches returned action</text>
+
+        <!-- FlowEffect -->
+        <rect x="204" y="124" width="200" height="100" rx="10" fill="#172554" stroke="#2563eb" stroke-width="1.5"/>
+        <text x="304" y="150" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="700">FlowEffect</text>
+        <text x="304" y="168" text-anchor="middle" fill="#60a5fa" font-size="10">&lt;out ACTION&gt;</text>
+        <line x1="214" y1="176" x2="394" y2="176" stroke="#1e3a8a" stroke-width="1"/>
+        <text x="304" y="192" text-anchor="middle" fill="#3b82f6" font-size="10">() → Flow&lt;ACTION&gt;</text>
+        <text x="304" y="208" text-anchor="middle" fill="#1d4ed8" font-size="10">dispatches each emission</text>
+
+        <!-- SuspendEffect -->
+        <rect x="388" y="124" width="200" height="100" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5"/>
+        <text x="488" y="150" text-anchor="middle" fill="#5eead4" font-size="12" font-weight="700">SuspendEffect</text>
+        <text x="488" y="168" text-anchor="middle" fill="#2dd4bf" font-size="10">Effect&lt;Nothing&gt;</text>
+        <line x1="398" y1="176" x2="578" y2="176" stroke="#134e4a" stroke-width="1"/>
+        <text x="488" y="192" text-anchor="middle" fill="#0d9488" font-size="10">suspend () → Unit</text>
+        <text x="488" y="208" text-anchor="middle" fill="#115e59" font-size="10">fire-and-forget, no action</text>
+
+        <!-- NavigationEffect -->
+        <rect x="572" y="124" width="200" height="100" rx="10" fill="#2e1065" stroke="#9333ea" stroke-width="1.5"/>
+        <text x="672" y="150" text-anchor="middle" fill="#d8b4fe" font-size="12" font-weight="700">NavigationEffect</text>
+        <text x="672" y="168" text-anchor="middle" fill="#c084fc" font-size="10">Effect&lt;Nothing&gt;</text>
+        <line x1="582" y1="176" x2="762" y2="176" stroke="#4c1d95" stroke-width="1"/>
+        <text x="672" y="192" text-anchor="middle" fill="#9333ea" font-size="10">Navigator.() → Unit</text>
+        <text x="672" y="208" text-anchor="middle" fill="#6d28d9" font-size="10">intercepted by middleware</text>
+
+        <!-- Arrows to handling row -->
+        <line x1="120" y1="224" x2="120" y2="268" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <line x1="304" y1="224" x2="304" y2="268" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <line x1="488" y1="224" x2="488" y2="268" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <line x1="672" y1="224" x2="672" y2="268" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr4)"/>
+
+        <!-- Handling descriptions -->
+        <rect x="20" y="272" width="200" height="44" rx="8" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
+        <text x="120" y="292" text-anchor="middle" fill="#d6d3d1" font-size="10">Awaits result</text>
+        <text x="120" y="308" text-anchor="middle" fill="#78716c" font-size="10">dispatch(resultAction)</text>
+
+        <rect x="204" y="272" width="200" height="44" rx="8" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
+        <text x="304" y="292" text-anchor="middle" fill="#d6d3d1" font-size="10">collect &#123; emit &#125;</text>
+        <text x="304" y="308" text-anchor="middle" fill="#78716c" font-size="10">dispatch(each emission)</text>
+
+        <rect x="388" y="272" width="200" height="44" rx="8" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
+        <text x="488" y="292" text-anchor="middle" fill="#d6d3d1" font-size="10">Runs to completion</text>
+        <text x="488" y="308" text-anchor="middle" fill="#78716c" font-size="10">nothing dispatched</text>
+
+        <rect x="572" y="272" width="200" height="44" rx="8" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
+        <text x="672" y="292" text-anchor="middle" fill="#d6d3d1" font-size="10">navigationMiddleware</text>
+        <text x="672" y="308" text-anchor="middle" fill="#78716c" font-size="10">calls navigator block</text>
+
+        <!-- Dispatch result back label -->
+        <path d="M 120 316 L 120 350 L 440 350" stroke="#16a34a" stroke-width="1.2" fill="none" stroke-dasharray="4,3" marker-end="url(#arr4g)"/>
+        <text x="220" y="364" fill="#15803d" font-size="10" font-style="italic">ActionableEffect &amp; FlowEffect results loop back into dispatch()</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DIAGRAM 5 — Module Structure
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>5 — Module Structure</h2>
+    <p class="desc">The project is split into focused modules. Core library modules have zero Android feature dependencies; each sample feature is its own Gradle module following the same internal layering.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 720 500" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
+
+        <!-- ─── Left column: library modules ─── -->
+        <text x="185" y="22" text-anchor="middle" fill="#8b949e" font-size="11" font-weight="600" letter-spacing="1">LIBRARY</text>
+
+        <rect x="30" y="34" width="310" height="64" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="2"/>
+        <text x="185" y="58" text-anchor="middle" fill="#5eead4" font-size="13" font-weight="700">:komposed</text>
+        <text x="185" y="76" text-anchor="middle" fill="#0d9488" font-size="10">Store · Reducer · Effect · Middleware · Lens · Navigator</text>
+        <text x="185" y="91" text-anchor="middle" fill="#134e4a" font-size="9">No Android feature dependencies</text>
+
+        <line x1="185" y1="98" x2="185" y2="122" stroke="#374151" stroke-width="1.5"/>
+        <text x="200" y="115" fill="#6b7280" font-size="9" font-style="italic">api(...)</text>
+
+        <rect x="30" y="126" width="310" height="56" rx="10" fill="#172554" stroke="#2563eb" stroke-width="2"/>
+        <text x="185" y="150" text-anchor="middle" fill="#93c5fd" font-size="13" font-weight="700">:komposed-testing</text>
+        <text x="185" y="168" text-anchor="middle" fill="#3b82f6" font-size="10">TestStore · ReduceResult · TestNavigator · SpyMiddleware</text>
+
+        <!-- ─── Right column: sample app ─── -->
+        <text x="535" y="22" text-anchor="middle" fill="#8b949e" font-size="11" font-weight="600" letter-spacing="1">SAMPLE APP</text>
+
+        <rect x="380" y="34" width="310" height="50" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="2"/>
+        <text x="535" y="58" text-anchor="middle" fill="#a5b4fc" font-size="13" font-weight="700">:sample</text>
+        <text x="535" y="73" text-anchor="middle" fill="#6366f1" font-size="10">App entry · MainActivity · KomposedApp · AppScreens</text>
+
+        <!-- core sub-modules -->
+        <line x1="535" y1="84" x2="535" y2="108" stroke="#374151" stroke-width="1.2"/>
+        <line x1="430" y1="108" x2="640" y2="108" stroke="#374151" stroke-width="1.2"/>
+        <line x1="430" y1="108" x2="430" y2="126" stroke="#374151" stroke-width="1.2" marker-end="url(#arr4)"/>
+        <line x1="640" y1="108" x2="640" y2="126" stroke="#374151" stroke-width="1.2" marker-end="url(#arr4)"/>
+
+        <rect x="380" y="130" width="130" height="44" rx="8" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
+        <text x="445" y="150" text-anchor="middle" fill="#d6d3d1" font-size="11" font-weight="600">core:navigation</text>
+        <text x="445" y="165" text-anchor="middle" fill="#78716c" font-size="9">Routes · NavigatorImpl</text>
+
+        <rect x="590" y="130" width="100" height="44" rx="8" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
+        <text x="640" y="150" text-anchor="middle" fill="#d6d3d1" font-size="11" font-weight="600">core:middleware</text>
+        <text x="640" y="165" text-anchor="middle" fill="#78716c" font-size="9">logging · analytics</text>
+
+        <!-- Checkout feature -->
+        <line x1="535" y1="84" x2="535" y2="200" stroke="#374151" stroke-width="1.2" stroke-dasharray="3,2"/>
+
+        <rect x="400" y="200" width="270" height="50" rx="10" fill="#2e1065" stroke="#9333ea" stroke-width="1.5"/>
+        <text x="535" y="222" text-anchor="middle" fill="#d8b4fe" font-size="12" font-weight="700">:checkout</text>
+        <text x="535" y="239" text-anchor="middle" fill="#9333ea" font-size="10">CheckoutState · CheckoutViewModel · CheckoutScreen</text>
+
+        <!-- checkout sub-modules -->
+        <line x1="535" y1="250" x2="535" y2="274" stroke="#374151" stroke-width="1.2"/>
+        <line x1="433" y1="274" x2="637" y2="274" stroke="#374151" stroke-width="1.2"/>
+        <line x1="433" y1="274" x2="433" y2="290" stroke="#374151" stroke-width="1.2" marker-end="url(#arr4)"/>
+        <line x1="535" y1="274" x2="535" y2="290" stroke="#374151" stroke-width="1.2" marker-end="url(#arr4)"/>
+        <line x1="637" y1="274" x2="637" y2="290" stroke="#374151" stroke-width="1.2" marker-end="url(#arr4)"/>
+
+        <rect x="380" y="294" width="96" height="52" rx="8" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1"/>
+        <text x="428" y="317" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">delivery</text>
+        <text x="428" y="332" text-anchor="middle" fill="#6366f1" font-size="9">DeliveryReducer</text>
+        <text x="428" y="344" text-anchor="middle" fill="#4338ca" font-size="9">DeliveryHandler</text>
+
+        <rect x="487" y="294" width="96" height="52" rx="8" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1"/>
+        <text x="535" y="317" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">bill</text>
+        <text x="535" y="332" text-anchor="middle" fill="#6366f1" font-size="9">BillReducer</text>
+        <text x="535" y="344" text-anchor="middle" fill="#4338ca" font-size="9">BillHandler</text>
+
+        <rect x="594" y="294" width="96" height="52" rx="8" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1"/>
+        <text x="642" y="317" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">placeOrder</text>
+        <text x="642" y="332" text-anchor="middle" fill="#6366f1" font-size="9">PlaceOrderReducer</text>
+        <text x="642" y="344" text-anchor="middle" fill="#4338ca" font-size="9">PlaceOrderHandler</text>
+
+        <!-- orderDetails -->
+        <line x1="535" y1="250" x2="535" y2="374" stroke="#374151" stroke-width="1.2" stroke-dasharray="3,2"/>
+        <rect x="400" y="374" width="270" height="44" rx="10" fill="#2e1065" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="535" y="396" text-anchor="middle" fill="#d8b4fe" font-size="12" font-weight="700">:orderDetails</text>
+        <text x="535" y="411" text-anchor="middle" fill="#9333ea" font-size="10">OrderDetailsReducer · OrderDetailsScreen</text>
+
+        <!-- Feature internal layer note -->
+        <rect x="30" y="228" width="310" height="96" rx="10" fill="#0d1117" stroke="#30363d" stroke-width="1" stroke-dasharray="4,2"/>
+        <text x="185" y="250" text-anchor="middle" fill="#8b949e" font-size="11" font-weight="600">Feature Module Layers</text>
+        <line x1="40" y1="258" x2="330" y2="258" stroke="#30363d" stroke-width="1"/>
+        <text x="50" y="275" fill="#d97706" font-size="11">presentation/</text>
+        <text x="185" y="275" fill="#78716c" font-size="10">Action · State · Reducer · EffectHandler interface · UI</text>
+        <text x="50" y="293" fill="#0d9488" font-size="11">domain/</text>
+        <text x="185" y="293" fill="#78716c" font-size="10">Plain data models · no Android, no framework</text>
+        <text x="50" y="311" fill="#6366f1" font-size="11">data/</text>
+        <text x="185" y="311" fill="#78716c" font-size="10">Repository impl · EffectHandler impl · Hilt module</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DIAGRAM 6 — Testing Architecture
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>6 — Testing Architecture</h2>
+    <p class="desc">Each layer of the architecture has a dedicated testing tool. Pure reducers need no coroutines; integration tests use <code style="color:#2dd4bf">TestScope</code> for deterministic async.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
+
+        <!-- Layer labels on left -->
+        <text x="14" y="80"  fill="#8b949e" font-size="10" font-weight="600" transform="rotate(-90,14,80)" text-anchor="middle">UNIT</text>
+        <text x="14" y="210" fill="#8b949e" font-size="10" font-weight="600" transform="rotate(-90,14,210)" text-anchor="middle">INTEG</text>
+        <text x="14" y="340" fill="#8b949e" font-size="10" font-weight="600" transform="rotate(-90,14,340)" text-anchor="middle">UTIL</text>
+
+        <!-- Horizontal dividers -->
+        <line x1="30" y1="140" x2="690" y2="140" stroke="#21262d" stroke-width="1"/>
+        <line x1="30" y1="280" x2="690" y2="280" stroke="#21262d" stroke-width="1"/>
+
+        <!-- ── Unit layer ── -->
+        <!-- ReduceResult -->
+        <rect x="34" y="20" width="200" height="110" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5"/>
+        <text x="134" y="44" text-anchor="middle" fill="#5eead4" font-size="12" font-weight="700">ReduceResult DSL</text>
+        <line x1="44" y1="52" x2="224" y2="52" stroke="#134e4a" stroke-width="1"/>
+        <text x="134" y="68" text-anchor="middle" fill="#2dd4bf" font-size="10">reducer.provide(fakeHandler)</text>
+        <text x="134" y="84" text-anchor="middle" fill="#2dd4bf" font-size="10">  .given(state, action)</text>
+        <text x="134" y="100" text-anchor="middle" fill="#0d9488" font-size="10">  .assertState(expected)</text>
+        <text x="134" y="116" text-anchor="middle" fill="#0d9488" font-size="10">  .assertEffect&lt;T&gt;()</text>
+
+        <!-- State projection tests -->
+        <rect x="254" y="20" width="200" height="110" rx="10" fill="#172554" stroke="#2563eb" stroke-width="1.5"/>
+        <text x="354" y="44" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="700">State Projection</text>
+        <line x1="264" y1="52" x2="444" y2="52" stroke="#1e3a8a" stroke-width="1"/>
+        <text x="354" y="68" text-anchor="middle" fill="#60a5fa" font-size="10">Plain unit test on State data class</text>
+        <text x="354" y="84" text-anchor="middle" fill="#3b82f6" font-size="10">deliveryFee · orderGrandTotal</text>
+        <text x="354" y="100" text-anchor="middle" fill="#3b82f6" font-size="10">selectedAddress · toCheckoutAction()</text>
+        <text x="354" y="116" text-anchor="middle" fill="#1d4ed8" font-size="10">No coroutines needed</text>
+
+        <!-- EffectHandler tests -->
+        <rect x="474" y="20" width="210" height="110" rx="10" fill="#2e1065" stroke="#9333ea" stroke-width="1.5"/>
+        <text x="579" y="44" text-anchor="middle" fill="#d8b4fe" font-size="12" font-weight="700">EffectHandler I/O</text>
+        <line x1="484" y1="52" x2="674" y2="52" stroke="#4c1d95" stroke-width="1"/>
+        <text x="579" y="68" text-anchor="middle" fill="#c084fc" font-size="10">Fake Repository interface</text>
+        <text x="579" y="84" text-anchor="middle" fill="#c084fc" font-size="10">success → correct action type</text>
+        <text x="579" y="100" text-anchor="middle" fill="#9333ea" font-size="10">failure → error action + message</text>
+        <text x="579" y="116" text-anchor="middle" fill="#7e22ce" font-size="10">No mocking framework required</text>
+
+        <!-- ── Integration layer ── -->
+        <!-- TestStore -->
+        <rect x="34" y="156" width="310" height="110" rx="10" fill="#431407" stroke="#ea580c" stroke-width="1.5"/>
+        <text x="189" y="180" text-anchor="middle" fill="#fdba74" font-size="12" font-weight="700">TestStore</text>
+        <line x1="44" y1="188" x2="334" y2="188" stroke="#7c2d12" stroke-width="1"/>
+        <text x="189" y="204" text-anchor="middle" fill="#fb923c" font-size="10">Wraps real createStore with recording middleware</text>
+        <text x="189" y="220" text-anchor="middle" fill="#fb923c" font-size="10">store.dispatch(action)  ·  advanceUntilIdle()</text>
+        <text x="189" y="236" text-anchor="middle" fill="#c2410c" font-size="10">store.assertState(expected)</text>
+        <text x="189" y="252" text-anchor="middle" fill="#c2410c" font-size="10">store.assertActionsDispatched(...)</text>
+
+        <!-- Navigation testing -->
+        <rect x="364" y="156" width="320" height="110" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+        <text x="524" y="180" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700">Navigation Testing</text>
+        <line x1="374" y1="188" x2="674" y2="188" stroke="#312e81" stroke-width="1"/>
+        <text x="524" y="204" text-anchor="middle" fill="#818cf8" font-size="10">assertNavigationEffect &#123; nav → ... &#125;</text>
+        <text x="524" y="220" text-anchor="middle" fill="#818cf8" font-size="10">TestNavigator implements Navigator</text>
+        <text x="524" y="236" text-anchor="middle" fill="#6366f1" font-size="10">nav.navigations  ·  nav.navigatedUpCount</text>
+        <text x="524" y="252" text-anchor="middle" fill="#4f46e5" font-size="10">nav.poppedBackStackToRoutes</text>
+
+        <!-- ── Utility layer ── -->
+        <!-- SpyMiddleware -->
+        <rect x="34" y="296" width="310" height="106" rx="10" fill="#1c1917" stroke="#78716c" stroke-width="1.5"/>
+        <text x="189" y="320" text-anchor="middle" fill="#d6d3d1" font-size="12" font-weight="700">SpyMiddleware</text>
+        <line x1="44" y1="328" x2="334" y2="328" stroke="#44403c" stroke-width="1"/>
+        <text x="189" y="344" text-anchor="middle" fill="#a8a29e" font-size="10">MiddlewareCallLog records before/after per action</text>
+        <text x="189" y="360" text-anchor="middle" fill="#a8a29e" font-size="10">log.assertOrder("A:before","B:before","B:after","A:after")</text>
+        <text x="189" y="376" text-anchor="middle" fill="#78716c" font-size="10">intercept=true swallows action (tests isolation)</text>
+        <text x="189" y="392" text-anchor="middle" fill="#57534e" font-size="10">spy.capturedActions verifies what reached middleware</text>
+
+        <!-- stateDiff -->
+        <rect x="364" y="296" width="320" height="106" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="5,2"/>
+        <text x="524" y="320" text-anchor="middle" fill="#5eead4" font-size="12" font-weight="700">stateDiff() Helper</text>
+        <line x1="374" y1="328" x2="674" y2="328" stroke="#134e4a" stroke-width="1"/>
+        <text x="524" y="344" text-anchor="middle" fill="#2dd4bf" font-size="10">Available on any ReduceResult</text>
+        <text x="524" y="360" text-anchor="middle" fill="#2dd4bf" font-size="10">Returns List&lt;PropertyChange(name, before, after)&gt;</text>
+        <text x="524" y="376" text-anchor="middle" fill="#0d9488" font-size="10">Reflection-based — useful for debugging assertion failures</text>
+        <text x="524" y="392" text-anchor="middle" fill="#115e59" font-size="10">No setup needed — call .stateDiff() on any ReduceResult</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#0d9488"></span>ReduceResult — pure reducer unit tests</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#2563eb"></span>State projection — plain data class tests</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#9333ea"></span>EffectHandler — I/O contract tests</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#ea580c"></span>TestStore — full round-trip integration</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#6366f1"></span>TestNavigator — navigation assertion</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#78716c"></span>SpyMiddleware — chain ordering</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
