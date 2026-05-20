@@ -27,6 +27,6 @@ package io.github.atwa.komposed.effect
  * Register via [io.github.atwa.komposed.reducer.EffectHandlerRegistry.register] inside the
  * [io.github.atwa.komposed.reducer.effectHandlers] DSL block.
  */
-interface EffectHandler<in E : Effect, A : Any> {
+interface EffectHandler<E : Effect, A : Any> {
     suspend fun handle(effect: E, dispatch: suspend (suspend () -> A) -> Unit)
 }
