@@ -1,5 +1,7 @@
 [versions]
 agp = "8.13.2"
+komposed = "1.0.0"
+komposedTesting = "1.0.0"
 kotlin = "2.0.21"
 coroutines = "1.9.0"
 coreKtx = "1.18.0"
@@ -39,6 +41,8 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+komposed = { module = "io.github.atwa:komposed", version.ref = "komposed" }
+komposed-testing = { module = "io.github.atwa:komposed-testing", version.ref = "komposedTesting" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

@@ -4,7 +4,8 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "Bash(open *)",
-      "Bash(python3 -c \"import yaml; yaml.safe_load\\(open\\('.github/workflows/publish.yml'\\)\\)\")"
+      "Bash(python3 -c \"import yaml; yaml.safe_load\\(open\\('.github/workflows/publish.yml'\\)\\)\")",
+      "Bash(git -C /Users/ahmedatwa/AndroidStudioProjects/Komposed status --short)"
     ]
   }
 }

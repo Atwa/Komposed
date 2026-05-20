@@ -33,6 +33,13 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
@@ -46,17 +53,6 @@ dependencies {
 
 // ─── Publishing ────────────────────────────────────────────────────────────────
 
-val androidSourcesJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(android.sourceSets["main"].java.srcDirs)
-}
-
-// Maven Central requires a javadoc artifact; an empty jar satisfies the requirement
-// for Kotlin-only libraries that ship KDoc via sources instead.
-val androidJavadocJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("javadoc")
-}
-
 afterEvaluate {
     val versionName = project.findProperty("VERSION_NAME") as? String ?: "1.0.0"
 
@@ -64,8 +60,6 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                artifact(androidSourcesJar)
-                artifact(androidJavadocJar)
 
                 groupId    = "io.github.atwa"
                 artifactId = "komposed"
@@ -121,7 +115,7 @@ afterEvaluate {
             }
             maven {
                 name = "MavenLocal"
-                url = uri(layout.buildDirectory.dir("local-publish"))
+                url = uri("${rootDir}/build/local-publish")
             }
         }
     }

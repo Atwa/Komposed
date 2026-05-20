@@ -23,7 +23,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":komposed"))
+    implementation(libs.komposed)
     implementation(libs.serialization)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

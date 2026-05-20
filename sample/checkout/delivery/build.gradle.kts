@@ -25,7 +25,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":komposed"))
+    implementation(libs.komposed)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.tooling.preview)
@@ -35,5 +35,5 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(project(":komposed-testing"))
+    testImplementation(libs.komposed.testing)
 }

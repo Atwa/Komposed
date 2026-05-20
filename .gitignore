@@ -1,15 +1,39 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# ─── Build outputs ────────────────────────────────────────────────────────────
+**/build/
+*.aar
+*.apk
+*.aab
+
+# ─── Gradle ───────────────────────────────────────────────────────────────────
+.gradle/
+gradle-app.setting
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# ─── Local configuration ──────────────────────────────────────────────────────
 local.properties
+*.local.properties
+
+# ─── Android Studio / IntelliJ IDEA ──────────────────────────────────────────
+*.iml
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/markdown.xml
+.externalNativeBuild/
+.cxx/
+captures/
+
+# ─── Signing keys (never commit) ──────────────────────────────────────────────
+*.jks
+*.keystore
+
+# ─── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log

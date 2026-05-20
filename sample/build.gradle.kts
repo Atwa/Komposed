@@ -50,7 +50,7 @@ kotlin {
 dependencies {
     implementation(project(":sample:core:navigation"))
     implementation(project(":sample:core:middleware"))
-    implementation(project(":komposed"))
+    implementation(libs.komposed)
     implementation(project(":sample:checkout"))
     implementation(project(":sample:orderDetails"))
 

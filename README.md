@@ -185,15 +185,13 @@ import io.github.atwa.komposed.ReduceType.Companion.effect
 
 #### Pure Reducer — no dependencies
 
-Use `pureReducer` when the reducer needs no external services:
+Use `pureReducer` when all state transitions are pure and require no external services. Every `when` branch returns a `ReduceType` built from the new state — no I/O, no coroutines:
 
 ```kotlin
 val cartReducer = pureReducer<CartState, CartAction> { state, action ->
     when (action) {
         CartAction.LoadCart ->
-            state.copy(isLoading = true).withEffect {
-                ActionableEffect { cartRepository.load() }
-            }
+            state.copy(isLoading = true, error = null).reduce()
         is CartAction.CartLoaded ->
             state.copy(items = action.items, isLoading = false).reduce()
         is CartAction.CartFailed ->
@@ -203,6 +201,8 @@ val cartReducer = pureReducer<CartState, CartAction> { state, action ->
     }
 }
 ```
+
+When `LoadCart` also needs to trigger a network fetch, use `reducer { }` with an injected handler instead — shown in the next section.
 
 #### Reducer with injected Handler — has dependencies
 
@@ -349,21 +349,36 @@ val store = createStore(
         navigationMiddleware(navigator),   // built-in, intercepts NavigationEffect
     ),
     reducers = reducers {
-        // ReducerFactory + handler + lens → register into global map
+        // ReducerFactory (needs a handler) + handler + lens → lifted to global state
         cartReducer.scoped(cartHandler, CheckoutState.cartLens)
         deliveryReducer.scoped(deliveryHandler, CheckoutState.deliveryLens)
         placeOrderReducer.scoped(placeOrderHandler, CheckoutState.placeOrderLens)
+
+        // PureReducer (no handler) + lens → lifted to global state
+        someLocalReducer.scoped(CheckoutState.someLens)
+
+        // PureReducer already on global state → registered as-is
+        counterReducer.register()
     },
 )
 ```
 
-Every `dispatch` passes through the middleware chain. The matching reducer is found by `action::class` in a `Map<KClass<*>, PureReducer>`. After the reducer returns:
+The `reducers { }` DSL supports three registration methods:
+
+| Method | Use when |
+|---|---|
+| `ReducerFactory.scoped(handler, lens)` | Reducer has injected dependencies and operates on a local state slice |
+| `PureReducer.scoped(lens)` | Handler-free reducer on a local state slice |
+| `PureReducer.register()` | Handler-free reducer already operating on the full global state |
+
+Every `dispatch` passes through the middleware chain. The matching reducer is found by an `isInstance` check against the `KClass` keys — inheritance-aware, so a sub-action type matches its parent type's registered reducer. After the reducer returns:
 
 - `Reduce` → `_state.update { }` only
 - `ReduceWithEffect` → `_state.update { }` then `scope.launch { handleEffect() }`
 - `SideEffect` → `scope.launch { handleEffect() }` only
+- `NavigationEffect` — re-dispatched back through the full middleware chain via `dispatch(effect)`, where `navigationMiddleware` intercepts and executes it; reducers never see it
 
-Effect results are re-dispatched through the same path — they also pass through middleware and recording.
+`ActionableEffect` and `FlowEffect` results are re-dispatched through the same pipeline — they pass through middleware and the recording layer before reaching reducers.
 
 > See **Diagram 1** in [`docs/architecture.html`](docs/architecture.html) for the complete data flow.
 
@@ -778,9 +793,11 @@ git push origin v1.0.0
 ### Local publish (test before releasing)
 
 ```bash
-./gradlew :komposed:publishToMavenLocal
-./gradlew :komposed-testing:publishToMavenLocal
+./gradlew :komposed:publishReleasePublicationToMavenLocalRepository \
+          :komposed-testing:publishReleasePublicationToMavenLocalRepository
 ```
+
+Artifacts land in `build/local-publish/`, which is pre-configured as a Maven repository in `settings.gradle.kts` for the sample app.
 
 ---
 

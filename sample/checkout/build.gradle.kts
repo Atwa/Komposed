@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":komposed"))
+    implementation(libs.komposed)
     implementation(project(":sample:core:navigation"))
     implementation(project(":sample:core:middleware"))
     implementation(project(":sample:checkout:delivery"))
@@ -41,5 +41,5 @@ dependencies {
     ksp(libs.hilt.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(project(":komposed-testing"))
+    testImplementation(libs.komposed.testing)
 }

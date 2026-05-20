@@ -6,14 +6,30 @@ import io.github.atwa.komposed.PureReducer
 import io.github.atwa.komposed.ReduceType
 import io.github.atwa.komposed.testing.stateDiff
 
+/** A field-level difference between [previousState] and [nextState], used by [ReduceResult.stateDiff]. */
 data class PropertyChange(val name: String, val before: Any?, val after: Any?)
 
+/**
+ * The captured output of a single reducer invocation, used for unit-level assertions.
+ *
+ * Obtain via [PureReducer.given]:
+ * ```kotlin
+ * reducer.given(CartState(), CartAction.LoadCart)
+ *     .assertState(CartState(isLoading = true))
+ *     .assertEffect<ActionableEffect<*>>()
+ * ```
+ *
+ * @property previousState the state passed in to the reducer.
+ * @property nextState the state returned by the reducer.
+ * @property effect the [Effect] emitted by the reducer, or `null` if the reducer returned [ReduceType.Reduce].
+ */
 data class ReduceResult<S>(
     val previousState: S,
     val nextState: S,
     val effect: Effect<*>?,
 )
 
+/** Invokes this reducer with [state] and [action] and wraps the result in a [ReduceResult]. */
 fun <S, A : Any> PureReducer<S, A>.given(state: S, action: A): ReduceResult<S> {
     val result = invoke(state, action)
     return when (result) {
@@ -23,6 +39,7 @@ fun <S, A : Any> PureReducer<S, A>.given(state: S, action: A): ReduceResult<S> {
     }
 }
 
+/** Asserts that [nextState] equals [expected]. Returns `this` for chaining. */
 fun <S> ReduceResult<S>.assertState(expected: S): ReduceResult<S> {
     if (nextState != expected) throw AssertionError(
         "Expected state:\n$expected\n\nActual state:\n$nextState"
@@ -30,6 +47,7 @@ fun <S> ReduceResult<S>.assertState(expected: S): ReduceResult<S> {
     return this
 }
 
+/** Asserts that [nextState] is unchanged from [previousState]. Returns `this` for chaining. */
 fun <S> ReduceResult<S>.assertNoStateChange(): ReduceResult<S> {
     if (nextState != previousState) throw AssertionError(
         "Expected no state change. Diff:\n${stateDiff()}"
@@ -37,11 +55,16 @@ fun <S> ReduceResult<S>.assertNoStateChange(): ReduceResult<S> {
     return this
 }
 
+/** Asserts that no [Effect] was emitted. Returns `this` for chaining. */
 fun <S> ReduceResult<S>.assertNoEffect(): ReduceResult<S> {
     if (effect != null) throw AssertionError("Expected no effect but got: $effect")
     return this
 }
 
+/**
+ * Asserts that the emitted [Effect] is of type [E] and optionally inspects it with [verify].
+ * Returns `this` for chaining.
+ */
 inline fun <reified E : Effect<*>> ReduceResult<*>.assertEffect(
     noinline verify: (E) -> Unit = {},
 ): ReduceResult<*> {
@@ -52,6 +75,10 @@ inline fun <reified E : Effect<*>> ReduceResult<*>.assertEffect(
     return this
 }
 
+/**
+ * Asserts that the emitted effect is a [NavigationEffect], executes it against a [TestNavigator],
+ * and passes the spy to [verify] for inspection. Returns `this` for chaining.
+ */
 fun <S> ReduceResult<S>.assertNavigationEffect(
     verify: (TestNavigator) -> Unit,
 ): ReduceResult<S> {
@@ -64,6 +91,10 @@ fun <S> ReduceResult<S>.assertNavigationEffect(
     return this
 }
 
+/**
+ * Returns a list of [PropertyChange] entries for every field that differs between
+ * [previousState] and [nextState] — useful for debugging assertion failures.
+ */
 fun <S> ReduceResult<S>.stateDiff(): List<PropertyChange> =
     (previousState as Any).javaClass.declaredFields
         .filter { !it.isSynthetic }

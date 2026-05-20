@@ -20,6 +20,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":komposed"))
+    implementation(libs.komposed)
     implementation(project(":sample:core:navigation"))
 }
