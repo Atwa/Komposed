@@ -1,14 +1,16 @@
-package io.github.atwa.komposed
+package io.github.atwa.komposed.reducer
+
+import io.github.atwa.komposed.Lens
 
 /** A side-effect-free reducer: maps (state, action) to a [ReduceType] with no external dependencies. */
 typealias PureReducer<STATE, ACTION> = (
     state: STATE,
     action: ACTION,
-) -> ReduceType<STATE, ACTION>
+) -> ReduceType<STATE>
 
 /** Creates a [PureReducer] from a lambda. */
 fun <STATE, ACTION> pureReducer(
-    reduce: (STATE, ACTION) -> ReduceType<STATE, ACTION>,
+    reduce: (STATE, ACTION) -> ReduceType<STATE>,
 ): PureReducer<STATE, ACTION> = { state, action -> reduce(state, action) }
 
 /** Lifts a [PureReducer] on a local state slice into a [PureReducer] on the global state,

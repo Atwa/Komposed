@@ -1,15 +1,25 @@
-package io.github.atwa.komposed
+package io.github.atwa.komposed.navigation
 
 /**
- * Navigation DSL exposed to reducers via [NavigationEffect] — hides [androidx.navigation.NavController] completely.
+ * Navigation DSL exposed to reducers via [io.github.atwa.komposed.effect.NavigationEffect] — hides
+ * [androidx.navigation.NavController] completely.
  *
  * Reducers never hold a reference to this interface. They express navigation intent by returning a
- * [NavigationEffect] whose lambda receives a [Navigator] at execution time, keeping reducers pure
- * and fully testable with [io.github.atwa.komposed.testing.TestNavigator].
+ * [io.github.atwa.komposed.effect.NavigationEffect] whose lambda receives a [Navigator] at execution
+ * time, keeping reducers pure and fully testable with [io.github.atwa.komposed.testing.TestNavigator].
  */
 interface Navigator {
+
     /** Navigates to [route] using type-safe Navigation Compose routes. */
     fun <T : Any> navigate(route: T)
+
+    /**
+     * Navigates to [route] with the given [navOptions].
+     *
+     * Use this overload to control back-stack behaviour — single-top launches, pop-up-to, or
+     * state restoration — without referencing Android framework types in reducers or tests.
+     */
+    fun <T : Any> navigate(route: T, navOptions: NavOptions)
 
     /** Navigates up the back stack, equivalent to the system Back action. */
     fun navigateUp()

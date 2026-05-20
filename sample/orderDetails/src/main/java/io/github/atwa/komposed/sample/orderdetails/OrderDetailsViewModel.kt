@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import io.github.atwa.komposed.sample.checkout.bill.presentation.BillState
 import io.github.atwa.komposed.createStore
-import io.github.atwa.komposed.reducers
+import io.github.atwa.komposed.reducer.reducers
 import io.github.atwa.komposed.sample.core.navigation.OrderDetailsRoute
 import io.github.atwa.komposed.sample.orderdetails.OrderDetailsState.Companion.billLens
 import io.github.atwa.komposed.sample.orderdetails.OrderDetailsState.Companion.orderInfoLens

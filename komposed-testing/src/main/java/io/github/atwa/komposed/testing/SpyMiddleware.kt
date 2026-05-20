@@ -1,6 +1,6 @@
 package io.github.atwa.komposed.testing
 
-import io.github.atwa.komposed.Middleware
+import io.github.atwa.komposed.middleware.Middleware
 
 /**
  * Shared call log passed to multiple [SpyMiddleware] instances to assert cross-middleware

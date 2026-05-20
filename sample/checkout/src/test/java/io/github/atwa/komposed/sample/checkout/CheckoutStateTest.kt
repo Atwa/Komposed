@@ -3,7 +3,6 @@ package io.github.atwa.komposed.sample.checkout
 import io.github.atwa.komposed.sample.checkout.bill.presentation.BillState
 import io.github.atwa.komposed.sample.checkout.delivery.domain.DeliveryAddress
 import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliveryState
-import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderAction
 import org.junit.Test
 
 class CheckoutStateTest {
@@ -50,7 +49,7 @@ class CheckoutStateTest {
     }
 
     @Test
-    fun `toCheckoutAction maps all state fields correctly`() {
+    fun `toCheckoutParams maps all state fields correctly`() {
         val state = CheckoutState(
             deliveryState = DeliveryState(
                 addresses = listOf(address),
@@ -59,22 +58,18 @@ class CheckoutStateTest {
             ),
             billState = BillState(serviceFees = 5.0, orderTotal = 100.0),
         )
-        val action = state.toCheckoutAction()
-        assert(action is PlaceOrderAction.Checkout)
-        assert(action.selectedAddressId == 1L)
-        assert(action.deliveryNote == "Ring bell")
-        assert(action.addressLine == "123 Main St")
-        assert(action.city == "Cairo")
-        assert(action.deliveryFees == 10.0)
-        assert(action.serviceFees == 5.0)
-        assert(action.orderTotal == 100.0)
+        val params = state.toCheckoutParams()
+        assert(params.addressId == 1L)
+        assert(params.deliveryNote == "Ring bell")
+        assert(params.addressLine == "123 Main St")
+        assert(params.city == "Cairo")
+        assert(params.deliveryFees == 10.0)
+        assert(params.serviceFees == 5.0)
+        assert(params.orderTotal == 100.0)
     }
 
     @Test
-    fun `toCheckoutAction uses empty strings when no address is selected`() {
-        val action = CheckoutState().toCheckoutAction()
-        assert(action.selectedAddressId == null)
-        assert(action.addressLine == "")
-        assert(action.city == "")
+    fun `toCheckoutParams has null addressId when no address is selected`() {
+        assert(CheckoutState().toCheckoutParams().addressId == null)
     }
 }

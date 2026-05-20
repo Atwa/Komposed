@@ -1,10 +1,9 @@
 package io.github.atwa.komposed.sample.checkout.bill.presentation
 
 import io.github.atwa.komposed.sample.checkout.bill.domain.BillSummary
-import io.github.atwa.komposed.ActionableEffect
-import io.github.atwa.komposed.ReduceType.Companion.reduce
-import io.github.atwa.komposed.ReduceType.Companion.withEffect
-import io.github.atwa.komposed.reducer
+import io.github.atwa.komposed.reducer.ReduceType.Companion.reduce
+import io.github.atwa.komposed.reducer.ReduceType.Companion.withEffect
+import io.github.atwa.komposed.reducer.pureReducer
 
 data class BillState(
     val serviceFees: Double = 0.0,
@@ -18,11 +17,10 @@ sealed interface BillAction {
     data class BillSummaryFailed(val message: String) : BillAction
 }
 
-val billReducer = reducer<BillState, BillAction, BillEffectHandler> { state, action, handler ->
+val billReducer = pureReducer<BillState, BillAction> { state, action ->
     when (action) {
-        is BillAction.FetchBillSummary -> state.copy(isLoading = true).withEffect {
-            ActionableEffect { handler.fetchBillSummary(action.userId) }
-        }
+        is BillAction.FetchBillSummary ->
+            state.copy(isLoading = true).withEffect { BillEffect.FetchSummary(action.userId) }
 
         is BillAction.BillSummaryLoaded -> state.copy(
             serviceFees = action.summary.serviceFees,

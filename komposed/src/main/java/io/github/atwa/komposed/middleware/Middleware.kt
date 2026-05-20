@@ -1,4 +1,4 @@
-package io.github.atwa.komposed
+package io.github.atwa.komposed.middleware
 
 /**
  * Intercepts dispatched actions before they reach the reducers.

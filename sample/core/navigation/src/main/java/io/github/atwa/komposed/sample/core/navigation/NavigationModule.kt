@@ -1,6 +1,6 @@
 package io.github.atwa.komposed.sample.core.navigation
 
-import io.github.atwa.komposed.Navigator
+import io.github.atwa.komposed.navigation.Navigator
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

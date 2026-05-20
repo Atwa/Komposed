@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.atwa.komposed.sample.checkout.bill.presentation.BillSection
 import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliverySection
+import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderAction
 import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderSection
 
 @Composable
@@ -30,7 +31,7 @@ fun CheckoutContent(
             PlaceOrderSection(
                 state = state.placeOrderState,
                 isLoading = state.isLoading,
-                onCheckout = { dispatch(state.toCheckoutAction()) },
+                onCheckout = { dispatch(PlaceOrderAction.Checkout(state.toCheckoutParams())) },
             )
         }
     ) { innerPadding ->

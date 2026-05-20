@@ -1,7 +1,7 @@
 package io.github.atwa.komposed.sample.orderdetails.orderinfo
 
-import io.github.atwa.komposed.ReduceType.Companion.reduce
-import io.github.atwa.komposed.pureReducer
+import io.github.atwa.komposed.reducer.ReduceType.Companion.reduce
+import io.github.atwa.komposed.reducer.pureReducer
 
 data class OrderInfoState(
     val orderId: String,

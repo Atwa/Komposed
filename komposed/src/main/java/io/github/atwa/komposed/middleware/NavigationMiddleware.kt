@@ -1,6 +1,8 @@
-package io.github.atwa.komposed
+package io.github.atwa.komposed.middleware
 
 import android.util.Log
+import io.github.atwa.komposed.effect.NavigationEffect
+import io.github.atwa.komposed.navigation.Navigator
 
 /**
  * Built-in middleware that intercepts [NavigationEffect] actions and executes their [Navigator]

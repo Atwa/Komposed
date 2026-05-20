@@ -1,7 +1,7 @@
 package io.github.atwa.komposed.sample.core.middleware
 
 import android.util.Log
-import io.github.atwa.komposed.createMiddleware
+import io.github.atwa.komposed.middleware.createMiddleware
 
 fun <S> loggingMiddleware() = createMiddleware<S> { _, action, next ->
     Log.d("Logger", "→ $action")

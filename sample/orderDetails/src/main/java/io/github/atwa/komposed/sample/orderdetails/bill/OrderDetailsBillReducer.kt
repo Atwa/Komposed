@@ -1,8 +1,8 @@
 package io.github.atwa.komposed.sample.orderdetails.bill
 
 import io.github.atwa.komposed.sample.checkout.bill.presentation.BillState
-import io.github.atwa.komposed.ReduceType.Companion.reduce
-import io.github.atwa.komposed.pureReducer
+import io.github.atwa.komposed.reducer.ReduceType.Companion.reduce
+import io.github.atwa.komposed.reducer.pureReducer
 
 interface OrderDetailsBillAction
 

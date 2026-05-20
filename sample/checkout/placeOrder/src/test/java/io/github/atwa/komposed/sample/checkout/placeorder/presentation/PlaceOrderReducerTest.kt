@@ -1,6 +1,5 @@
 package io.github.atwa.komposed.sample.checkout.placeorder.presentation
 
-import io.github.atwa.komposed.ActionableEffect
 import io.github.atwa.komposed.sample.core.navigation.OrderDetailsRoute
 import io.github.atwa.komposed.testing.assertEffect
 import io.github.atwa.komposed.testing.assertNavigationEffect
@@ -11,29 +10,8 @@ import org.junit.Test
 
 class PlaceOrderReducerTest {
 
-    private val fakeHandler = object : PlaceOrderEffectHandler {
-        override suspend fun placeOrder(
-            addressId: Long,
-            deliveryNote: String,
-            addressLine: String,
-            city: String,
-            deliveryFees: Double,
-            serviceFees: Double,
-            orderTotal: Double,
-        ): PlaceOrderAction = PlaceOrderAction.OrderPlaced(
-            orderId = "order-1",
-            addressLine = addressLine,
-            city = city,
-            deliveryNote = deliveryNote,
-            deliveryFee = deliveryFees,
-            serviceFees = serviceFees,
-            orderTotal = orderTotal,
-        )
-    }
-    private val reducer = placeOrderReducer.provide(fakeHandler)
-
-    private val validCheckout = PlaceOrderAction.Checkout(
-        selectedAddressId = 1L,
+    private val params = CheckoutParams(
+        addressId = 1L,
         deliveryNote = "Ring bell",
         addressLine = "123 Main St",
         city = "Cairo",
@@ -42,17 +20,28 @@ class PlaceOrderReducerTest {
         orderTotal = 100.0,
     )
 
+    private val paramsNoAddress = CheckoutParams(
+        addressId = null,
+        deliveryNote = "",
+        addressLine = "",
+        city = "",
+        deliveryFees = 0.0,
+        serviceFees = 0.0,
+        orderTotal = 0.0,
+    )
+
     @Test
-    fun `Checkout with valid address sets in-progress and emits ActionableEffect`() {
-        reducer.given(PlaceOrderState(), validCheckout)
+    fun `Checkout with valid addressId sets in-progress and emits PlaceOrder effect`() {
+        placeOrderReducer.given(PlaceOrderState(), PlaceOrderAction.Checkout(params))
             .assertState(PlaceOrderState(isCheckoutInProgress = true, errorMessage = null))
-            .assertEffect<ActionableEffect<*>>()
+            .assertEffect<PlaceOrderEffect.PlaceOrder> { effect ->
+                assert(effect.params == params)
+            }
     }
 
     @Test
-    fun `Checkout with null address sets error and does not emit effect`() {
-        val noAddress = validCheckout.copy(selectedAddressId = null)
-        reducer.given(PlaceOrderState(), noAddress)
+    fun `Checkout with null addressId sets error and does not emit effect`() {
+        placeOrderReducer.given(PlaceOrderState(), PlaceOrderAction.Checkout(paramsNoAddress))
             .assertState(PlaceOrderState(isCheckoutInProgress = false, errorMessage = "Please select a delivery address"))
             .assertNoEffect()
     }
@@ -68,7 +57,7 @@ class PlaceOrderReducerTest {
             serviceFees = 5.0,
             orderTotal = 100.0,
         )
-        reducer.given(PlaceOrderState(isCheckoutInProgress = true), action)
+        placeOrderReducer.given(PlaceOrderState(isCheckoutInProgress = true), action)
             .assertState(PlaceOrderState(isCheckoutInProgress = false, errorMessage = null))
             .assertNavigationEffect { nav ->
                 val route = nav.navigations.first()
@@ -79,7 +68,7 @@ class PlaceOrderReducerTest {
 
     @Test
     fun `CheckoutFailed sets error message and clears in-progress`() {
-        reducer.given(PlaceOrderState(isCheckoutInProgress = true), PlaceOrderAction.CheckoutFailed("Server error"))
+        placeOrderReducer.given(PlaceOrderState(isCheckoutInProgress = true), PlaceOrderAction.CheckoutFailed("Server error"))
             .assertState(PlaceOrderState(isCheckoutInProgress = false, errorMessage = "Server error"))
             .assertNoEffect()
     }

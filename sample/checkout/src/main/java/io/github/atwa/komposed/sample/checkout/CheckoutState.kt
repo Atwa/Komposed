@@ -1,10 +1,10 @@
 package io.github.atwa.komposed.sample.checkout
 
+import io.github.atwa.komposed.lens
 import io.github.atwa.komposed.sample.checkout.bill.presentation.BillState
 import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliveryState
-import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderAction
+import io.github.atwa.komposed.sample.checkout.placeorder.presentation.CheckoutParams
 import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderState
-import io.github.atwa.komposed.lens
 
 data class CheckoutState(
     val deliveryState: DeliveryState = DeliveryState(),
@@ -16,8 +16,8 @@ data class CheckoutState(
     val error: String? get() = deliveryState.error
     val orderGrandTotal: Double get() = billState.orderTotal + billState.serviceFees + deliveryFee
 
-    fun toCheckoutAction() = PlaceOrderAction.Checkout(
-        selectedAddressId = deliveryState.selectedAddressId,
+    fun toCheckoutParams() = CheckoutParams(
+        addressId = deliveryState.selectedAddressId,
         deliveryNote = deliveryState.deliveryNote,
         addressLine = deliveryState.selectedAddress?.addressLine ?: "",
         city = deliveryState.selectedAddress?.city ?: "",

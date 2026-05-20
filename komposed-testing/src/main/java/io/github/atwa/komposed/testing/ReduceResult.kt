@@ -1,9 +1,9 @@
 package io.github.atwa.komposed.testing
 
-import io.github.atwa.komposed.Effect
-import io.github.atwa.komposed.NavigationEffect
-import io.github.atwa.komposed.PureReducer
-import io.github.atwa.komposed.ReduceType
+import io.github.atwa.komposed.effect.Effect
+import io.github.atwa.komposed.effect.NavigationEffect
+import io.github.atwa.komposed.reducer.PureReducer
+import io.github.atwa.komposed.reducer.ReduceType
 import io.github.atwa.komposed.testing.stateDiff
 
 /** A field-level difference between [previousState] and [nextState], used by [ReduceResult.stateDiff]. */
@@ -14,9 +14,9 @@ data class PropertyChange(val name: String, val before: Any?, val after: Any?)
  *
  * Obtain via [PureReducer.given]:
  * ```kotlin
- * reducer.given(CartState(), CartAction.LoadCart)
- *     .assertState(CartState(isLoading = true))
- *     .assertEffect<ActionableEffect<*>>()
+ * deliveryReducer.given(DeliveryState(), DeliveryAction.FetchDeliveryAddresses)
+ *     .assertState(DeliveryState(isLoading = true))
+ *     .assertEffect<DeliveryEffect.FetchAddresses>()
  * ```
  *
  * @property previousState the state passed in to the reducer.
@@ -26,7 +26,7 @@ data class PropertyChange(val name: String, val before: Any?, val after: Any?)
 data class ReduceResult<S>(
     val previousState: S,
     val nextState: S,
-    val effect: Effect<*>?,
+    val effect: Effect?,
 )
 
 /** Invokes this reducer with [state] and [action] and wraps the result in a [ReduceResult]. */
@@ -65,7 +65,7 @@ fun <S> ReduceResult<S>.assertNoEffect(): ReduceResult<S> {
  * Asserts that the emitted [Effect] is of type [E] and optionally inspects it with [verify].
  * Returns `this` for chaining.
  */
-inline fun <reified E : Effect<*>> ReduceResult<*>.assertEffect(
+inline fun <reified E : Effect> ReduceResult<*>.assertEffect(
     noinline verify: (E) -> Unit = {},
 ): ReduceResult<*> {
     if (effect !is E) throw AssertionError(

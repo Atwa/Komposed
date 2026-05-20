@@ -1,6 +1,6 @@
 package io.github.atwa.komposed.sample.orderdetails
 
-import io.github.atwa.komposed.reducers
+import io.github.atwa.komposed.reducer.reducers
 import io.github.atwa.komposed.sample.checkout.bill.presentation.BillState
 import io.github.atwa.komposed.sample.orderdetails.OrderDetailsState.Companion.billLens
 import io.github.atwa.komposed.sample.orderdetails.OrderDetailsState.Companion.orderInfoLens

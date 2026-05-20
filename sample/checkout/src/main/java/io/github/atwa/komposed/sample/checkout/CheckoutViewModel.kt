@@ -2,33 +2,34 @@ package io.github.atwa.komposed.sample.checkout
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.atwa.komposed.sample.checkout.bill.presentation.BillAction
-import io.github.atwa.komposed.sample.checkout.bill.presentation.BillEffectHandler
-import io.github.atwa.komposed.sample.checkout.bill.presentation.billReducer
-import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliveryAction
-import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliveryEffectHandler
-import io.github.atwa.komposed.sample.checkout.delivery.presentation.deliveryReducer
-import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderEffectHandler
-import io.github.atwa.komposed.sample.checkout.placeorder.presentation.placeOrderReducer
+import io.github.atwa.komposed.effect.EffectHandler
+import io.github.atwa.komposed.navigation.Navigator
+import io.github.atwa.komposed.createStore
+import io.github.atwa.komposed.reducer.effectHandlers
+import io.github.atwa.komposed.middleware.navigationMiddleware
+import io.github.atwa.komposed.reducer.reducers
 import io.github.atwa.komposed.sample.checkout.CheckoutState.Companion.billLens
 import io.github.atwa.komposed.sample.checkout.CheckoutState.Companion.deliveryLens
 import io.github.atwa.komposed.sample.checkout.CheckoutState.Companion.placeOrderLens
-import io.github.atwa.komposed.Navigator
-import io.github.atwa.komposed.createStore
-import io.github.atwa.komposed.navigationMiddleware
-import io.github.atwa.komposed.reducers
+import io.github.atwa.komposed.sample.checkout.bill.presentation.BillAction
+import io.github.atwa.komposed.sample.checkout.bill.presentation.BillEffect
+import io.github.atwa.komposed.sample.checkout.bill.presentation.billReducer
+import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliveryAction
+import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliveryEffect
+import io.github.atwa.komposed.sample.checkout.delivery.presentation.deliveryReducer
+import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderAction
+import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderEffect
+import io.github.atwa.komposed.sample.checkout.placeorder.presentation.placeOrderReducer
 import io.github.atwa.komposed.sample.core.middleware.analyticsMiddleware
 import io.github.atwa.komposed.sample.core.middleware.loggingMiddleware
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.plus
 import javax.inject.Inject
 
 @HiltViewModel
 class CheckoutViewModel @Inject constructor(
-    private val deliveryEffectHandler: DeliveryEffectHandler,
-    private val billEffectHandler: BillEffectHandler,
-    private val placeOrderEffectHandler: PlaceOrderEffectHandler,
+    private val deliveryEffectHandler: EffectHandler<DeliveryEffect, DeliveryAction>,
+    private val billEffectHandler: EffectHandler<BillEffect, BillAction>,
+    private val placeOrderEffectHandler: EffectHandler<PlaceOrderEffect, PlaceOrderAction>,
     private val navigator: Navigator,
 ) : ViewModel() {
 
@@ -40,11 +41,16 @@ class CheckoutViewModel @Inject constructor(
                 analyticsMiddleware(),
                 navigationMiddleware(navigator),
             ),
-            scope = viewModelScope + Dispatchers.Main.immediate,
+            scope = viewModelScope,
             reducers = reducers {
-                deliveryReducer.scoped(deliveryEffectHandler, deliveryLens)
-                billReducer.scoped(billEffectHandler, billLens)
-                placeOrderReducer.scoped(placeOrderEffectHandler, placeOrderLens)
+                deliveryReducer.scoped(deliveryLens)
+                billReducer.scoped(billLens)
+                placeOrderReducer.scoped(placeOrderLens)
+            },
+            effectHandlers = effectHandlers {
+                deliveryEffectHandler.register()
+                billEffectHandler.register()
+                placeOrderEffectHandler.register()
             },
         )
     }
@@ -53,6 +59,4 @@ class CheckoutViewModel @Inject constructor(
         store.dispatch(DeliveryAction.FetchDeliveryAddresses)
         store.dispatch(BillAction.FetchBillSummary(userId = "user123"))
     }
-
-    fun onCheckout() = store.dispatch(store.state.value.toCheckoutAction())
 }

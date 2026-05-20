@@ -1,6 +1,5 @@
 package io.github.atwa.komposed.sample.checkout.delivery.presentation
 
-import io.github.atwa.komposed.ActionableEffect
 import io.github.atwa.komposed.sample.checkout.delivery.domain.DeliveryAddress
 import io.github.atwa.komposed.testing.assertEffect
 import io.github.atwa.komposed.testing.assertNoEffect
@@ -12,29 +11,24 @@ import org.junit.Test
 class DeliveryReducerTest {
 
     private val address = DeliveryAddress(id = 1L, addressLine = "123 Main St", city = "Cairo", deliveryFee = 10.0)
-    private val fakeHandler = object : DeliveryEffectHandler {
-        override suspend fun fetchDeliveryAddresses(): DeliveryAction =
-            DeliveryAction.OnDeliveryAddressLoaded(emptyList())
-    }
-    private val reducer = deliveryReducer.provide(fakeHandler)
 
     @Test
-    fun `FetchDeliveryAddresses sets isLoading and emits ActionableEffect`() {
-        reducer.given(DeliveryState(), DeliveryAction.FetchDeliveryAddresses)
+    fun `FetchDeliveryAddresses sets isLoading and emits FetchAddresses effect`() {
+        deliveryReducer.given(DeliveryState(), DeliveryAction.FetchDeliveryAddresses)
             .assertState(DeliveryState(isLoading = true, error = null))
-            .assertEffect<ActionableEffect<*>>()
+            .assertEffect<DeliveryEffect.FetchAddresses>()
     }
 
     @Test
     fun `OnDeliveryAddressSelected updates selectedAddressId with no effect`() {
-        reducer.given(DeliveryState(), DeliveryAction.OnDeliveryAddressSelected(1L))
+        deliveryReducer.given(DeliveryState(), DeliveryAction.OnDeliveryAddressSelected(1L))
             .assertState(DeliveryState(selectedAddressId = 1L))
             .assertNoEffect()
     }
 
     @Test
     fun `OnDeliveryNoteChanged updates deliveryNote with no effect`() {
-        reducer.given(DeliveryState(), DeliveryAction.OnDeliveryNoteChanged("Leave at door"))
+        deliveryReducer.given(DeliveryState(), DeliveryAction.OnDeliveryNoteChanged("Leave at door"))
             .assertState(DeliveryState(deliveryNote = "Leave at door"))
             .assertNoEffect()
     }
@@ -42,7 +36,7 @@ class DeliveryReducerTest {
     @Test
     fun `OnDeliveryAddressLoaded populates addresses and clears isLoading`() {
         val initial = DeliveryState(isLoading = true)
-        reducer.given(initial, DeliveryAction.OnDeliveryAddressLoaded(listOf(address)))
+        deliveryReducer.given(initial, DeliveryAction.OnDeliveryAddressLoaded(listOf(address)))
             .assertState(DeliveryState(addresses = listOf(address), isLoading = false))
             .assertNoEffect()
     }
@@ -50,7 +44,7 @@ class DeliveryReducerTest {
     @Test
     fun `OnDeliveryAddressFailure sets error and clears isLoading`() {
         val initial = DeliveryState(isLoading = true)
-        reducer.given(initial, DeliveryAction.OnDeliveryAddressFailure("Network error"))
+        deliveryReducer.given(initial, DeliveryAction.OnDeliveryAddressFailure("Network error"))
             .assertState(DeliveryState(isLoading = false, error = "Network error"))
             .assertNoEffect()
     }

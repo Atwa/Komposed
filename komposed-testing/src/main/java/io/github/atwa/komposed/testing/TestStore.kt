@@ -1,12 +1,15 @@
 package io.github.atwa.komposed.testing
 
-import io.github.atwa.komposed.Middleware
-import io.github.atwa.komposed.PureReducer
 import io.github.atwa.komposed.Store
-import io.github.atwa.komposed.createMiddleware
 import io.github.atwa.komposed.createStore
+import io.github.atwa.komposed.effect.Effect
+import io.github.atwa.komposed.effect.EffectHandler
+import io.github.atwa.komposed.middleware.Middleware
+import io.github.atwa.komposed.middleware.createMiddleware
+import io.github.atwa.komposed.reducer.PureReducer
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlin.reflect.KClass
 
 /**
@@ -14,13 +17,16 @@ import kotlin.reflect.KClass
  * in the chain so every action — including secondary dispatches produced by effects — is
  * captured in [dispatchedActions].
  *
- * Use [kotlinx.coroutines.test.advanceUntilIdle] after [dispatch] to let effect coroutines run
- * before asserting state or secondary actions.
+ * Threading is overridden internally: both the main and IO dispatchers are replaced with
+ * [UnconfinedTestDispatcher] so coroutines execute eagerly without needing [kotlinx.coroutines.test.advanceUntilIdle]
+ * for synchronous state transitions. Call [kotlinx.coroutines.test.advanceUntilIdle] only when
+ * testing async effect round-trips.
  */
 class TestStore<S>(
     initialState: S,
     reducers: Map<KClass<*>, PureReducer<S, Any>>,
     middlewares: List<Middleware<S, Any>> = emptyList(),
+    effectHandlers: Map<KClass<*>, EffectHandler<Effect, Any>> = emptyMap(),
     scope: TestScope,
 ) {
     private val _dispatchedActions = mutableListOf<Any>()
@@ -31,11 +37,16 @@ class TestStore<S>(
         next(action)
     }
 
+    private val testDispatcher = UnconfinedTestDispatcher(scope.testScheduler)
+
     private val store: Store<S> = createStore(
         initialValue = initialState,
         scope = scope,
         middlewares = listOf(recordingMiddleware) + middlewares,
         reducers = reducers,
+        effectHandlers = effectHandlers,
+        mainDispatcher = testDispatcher,
+        ioDispatcher = testDispatcher,
     )
 
     val state: StateFlow<S> get() = store.state

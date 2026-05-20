@@ -1,6 +1,7 @@
 package io.github.atwa.komposed.testing
 
-import io.github.atwa.komposed.Navigator
+import io.github.atwa.komposed.navigation.NavOptions
+import io.github.atwa.komposed.navigation.Navigator
 
 /**
  * In-memory [Navigator] implementation for use in reducer unit tests.
@@ -18,8 +19,14 @@ import io.github.atwa.komposed.Navigator
  */
 class TestNavigator : Navigator {
 
-    /** Every route argument passed to [navigate], in call order. */
+    /** Every route argument passed to [navigate] (with or without options), in call order. */
     val navigations = mutableListOf<Any>()
+
+    /**
+     * Every route and [NavOptions] pair passed to [navigate], in call order.
+     * Use this for assertions when navigation options matter.
+     */
+    val navigationsWithOptions = mutableListOf<Pair<Any, NavOptions>>()
 
     /** Number of times [navigateUp] was called. */
     var navigatedUpCount = 0
@@ -34,6 +41,11 @@ class TestNavigator : Navigator {
 
     override fun <T : Any> navigate(route: T) {
         navigations.add(route)
+    }
+
+    override fun <T : Any> navigate(route: T, navOptions: NavOptions) {
+        navigations.add(route)
+        navigationsWithOptions.add(Pair(route, navOptions))
     }
 
     override fun navigateUp() {

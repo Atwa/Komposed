@@ -1,21 +1,24 @@
 package io.github.atwa.komposed.sample.checkout
 
-import io.github.atwa.komposed.reducers
+import io.github.atwa.komposed.effect.EffectHandler
+import io.github.atwa.komposed.reducer.effectHandlers
+import io.github.atwa.komposed.reducer.reducers
 import io.github.atwa.komposed.sample.checkout.CheckoutState.Companion.billLens
 import io.github.atwa.komposed.sample.checkout.CheckoutState.Companion.deliveryLens
 import io.github.atwa.komposed.sample.checkout.CheckoutState.Companion.placeOrderLens
 import io.github.atwa.komposed.sample.checkout.bill.domain.BillSummary
 import io.github.atwa.komposed.sample.checkout.bill.presentation.BillAction
-import io.github.atwa.komposed.sample.checkout.bill.presentation.BillEffectHandler
+import io.github.atwa.komposed.sample.checkout.bill.presentation.BillEffect
 import io.github.atwa.komposed.sample.checkout.bill.presentation.BillState
 import io.github.atwa.komposed.sample.checkout.bill.presentation.billReducer
 import io.github.atwa.komposed.sample.checkout.delivery.domain.DeliveryAddress
 import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliveryAction
-import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliveryEffectHandler
+import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliveryEffect
 import io.github.atwa.komposed.sample.checkout.delivery.presentation.DeliveryState
 import io.github.atwa.komposed.sample.checkout.delivery.presentation.deliveryReducer
+import io.github.atwa.komposed.sample.checkout.placeorder.presentation.CheckoutParams
 import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderAction
-import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderEffectHandler
+import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderEffect
 import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderState
 import io.github.atwa.komposed.sample.checkout.placeorder.presentation.placeOrderReducer
 import io.github.atwa.komposed.testing.TestStore
@@ -28,40 +31,56 @@ class CheckoutStoreTest {
     private val address =
         DeliveryAddress(id = 1L, addressLine = "123 Main St", city = "Cairo", deliveryFee = 10.0)
 
-    private val fakeDeliveryHandler = object : DeliveryEffectHandler {
-        override suspend fun fetchDeliveryAddresses(): DeliveryAction =
-            DeliveryAction.OnDeliveryAddressLoaded(listOf(address))
+    private val fakeDeliveryHandler = object : EffectHandler<DeliveryEffect, DeliveryAction> {
+        override suspend fun handle(effect: DeliveryEffect, dispatch: suspend (suspend () -> DeliveryAction) -> Unit) {
+            when (effect) {
+                DeliveryEffect.FetchAddresses ->
+                    dispatch { DeliveryAction.OnDeliveryAddressLoaded(listOf(address)) }
+            }
+        }
     }
-    private val fakeBillHandler = object : BillEffectHandler {
-        override suspend fun fetchBillSummary(userId: String): BillAction =
-            BillAction.BillSummaryLoaded(
-                BillSummary(
-                    serviceFees = 5.0,
-                    orderTotal = 100.0
-                )
-            )
+
+    private val fakeBillHandler = object : EffectHandler<BillEffect, BillAction> {
+        override suspend fun handle(effect: BillEffect, dispatch: suspend (suspend () -> BillAction) -> Unit) {
+            when (effect) {
+                is BillEffect.FetchSummary ->
+                    dispatch { BillAction.BillSummaryLoaded(BillSummary(serviceFees = 5.0, orderTotal = 100.0)) }
+            }
+        }
     }
-    private val fakePlaceOrderHandler = object : PlaceOrderEffectHandler {
-        override suspend fun placeOrder(
-            addressId: Long, deliveryNote: String, addressLine: String,
-            city: String, deliveryFees: Double, serviceFees: Double, orderTotal: Double,
-        ): PlaceOrderAction = PlaceOrderAction.OrderPlaced(
-            orderId = "order-1",
-            addressLine = addressLine,
-            city = city,
-            deliveryNote = deliveryNote,
-            deliveryFee = deliveryFees,
-            serviceFees = serviceFees,
-            orderTotal = orderTotal,
-        )
+
+    private val fakePlaceOrderHandler = object : EffectHandler<PlaceOrderEffect, PlaceOrderAction> {
+        override suspend fun handle(effect: PlaceOrderEffect, dispatch: suspend (suspend () -> PlaceOrderAction) -> Unit) {
+            when (effect) {
+                is PlaceOrderEffect.PlaceOrder -> {
+                    val params = effect.params
+                    dispatch {
+                        PlaceOrderAction.OrderPlaced(
+                            orderId = "order-1",
+                            addressLine = params.addressLine,
+                            city = params.city,
+                            deliveryNote = params.deliveryNote,
+                            deliveryFee = params.deliveryFees,
+                            serviceFees = params.serviceFees,
+                            orderTotal = params.orderTotal,
+                        )
+                    }
+                }
+            }
+        }
     }
 
     private fun buildStore(scope: kotlinx.coroutines.test.TestScope) = TestStore(
         initialState = CheckoutState(),
         reducers = reducers {
-            deliveryReducer.scoped(fakeDeliveryHandler, deliveryLens)
-            billReducer.scoped(fakeBillHandler, billLens)
-            placeOrderReducer.scoped(fakePlaceOrderHandler, placeOrderLens)
+            deliveryReducer.scoped(deliveryLens)
+            billReducer.scoped(billLens)
+            placeOrderReducer.scoped(placeOrderLens)
+        },
+        effectHandlers = effectHandlers {
+            fakeDeliveryHandler.register()
+            fakeBillHandler.register()
+            fakePlaceOrderHandler.register()
         },
         scope = scope,
     )
@@ -103,30 +122,45 @@ class CheckoutStoreTest {
     }
 
     @Test
-    fun `Checkout with null address sets error on placeOrder state`() = runTest {
+    fun `Checkout with null addressId sets error on placeOrder state`() = runTest {
         val store = buildStore(this)
-        store.dispatch(CheckoutState().toCheckoutAction())
+        store.dispatch(
+            PlaceOrderAction.Checkout(
+                CheckoutParams(
+                    addressId = null,
+                    deliveryNote = "",
+                    addressLine = "",
+                    city = "",
+                    deliveryFees = 0.0,
+                    serviceFees = 0.0,
+                    orderTotal = 0.0,
+                )
+            )
+        )
         store.assertState(
             CheckoutState(placeOrderState = PlaceOrderState(errorMessage = "Please select a delivery address"))
         )
     }
 
     @Test
-    fun `Checkout with valid address sets in-progress then dispatches OrderPlaced effect`() =
-        runTest {
-            val store = buildStore(this)
-            store.dispatch(DeliveryAction.OnDeliveryAddressSelected(1L))
-            store.dispatch(
-                CheckoutState(
-                    deliveryState = DeliveryState(
-                        addresses = listOf(address),
-                        selectedAddressId = 1L
-                    ),
-                    billState = BillState(serviceFees = 5.0, orderTotal = 100.0),
-                ).toCheckoutAction()
+    fun `Checkout with valid params sets in-progress then dispatches OrderPlaced`() = runTest {
+        val store = buildStore(this)
+        store.dispatch(DeliveryAction.OnDeliveryAddressSelected(1L))
+        store.dispatch(
+            PlaceOrderAction.Checkout(
+                CheckoutParams(
+                    addressId = 1L,
+                    deliveryNote = "",
+                    addressLine = "123 Main St",
+                    city = "Cairo",
+                    deliveryFees = 10.0,
+                    serviceFees = 5.0,
+                    orderTotal = 100.0,
+                )
             )
-            advanceUntilIdle()
-            assert(!store.state.value.placeOrderState.isCheckoutInProgress)
-            assert(store.state.value.placeOrderState.errorMessage == null)
-        }
+        )
+        advanceUntilIdle()
+        assert(!store.state.value.placeOrderState.isCheckoutInProgress)
+        assert(store.state.value.placeOrderState.errorMessage == null)
+    }
 }

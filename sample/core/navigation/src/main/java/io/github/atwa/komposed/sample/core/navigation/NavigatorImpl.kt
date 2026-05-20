@@ -1,7 +1,9 @@
 package io.github.atwa.komposed.sample.core.navigation
 
 import androidx.navigation.NavController
-import io.github.atwa.komposed.Navigator
+import androidx.navigation.navOptions
+import io.github.atwa.komposed.navigation.NavOptions
+import io.github.atwa.komposed.navigation.Navigator
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,7 +16,23 @@ class NavigatorImpl @Inject constructor() : Navigator {
         navController = controller
     }
 
-    override fun <T : Any> navigate(route: T) = navController?.navigate(route) ?: Unit
+    override fun <T : Any> navigate(route: T) {
+        navController?.navigate(route)
+    }
+
+    override fun <T : Any> navigate(route: T, navOptions: NavOptions) {
+        val androidOptions = navOptions {
+            launchSingleTop = navOptions.launchSingleTop
+            restoreState = navOptions.restoreState
+            navOptions.popUpTo?.let { popUpTo ->
+                popUpTo(popUpTo.route) {
+                    inclusive = popUpTo.inclusive
+                    saveState = popUpTo.saveState
+                }
+            }
+        }
+        navController?.navigate(route, androidOptions)
+    }
 
     override fun navigateUp() {
         navController?.navigateUp()
