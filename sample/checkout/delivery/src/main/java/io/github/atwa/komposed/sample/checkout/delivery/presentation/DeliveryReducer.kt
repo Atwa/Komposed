@@ -3,7 +3,7 @@ package io.github.atwa.komposed.sample.checkout.delivery.presentation
 import io.github.atwa.komposed.sample.checkout.delivery.domain.DeliveryAddress
 import io.github.atwa.komposed.reducer.ReduceType.Companion.reduce
 import io.github.atwa.komposed.reducer.ReduceType.Companion.withEffect
-import io.github.atwa.komposed.reducer.pureReducer
+import io.github.atwa.komposed.reducer.reducer
 
 data class DeliveryState(
     val addresses: List<DeliveryAddress> = emptyList(),
@@ -24,7 +24,7 @@ sealed interface DeliveryAction {
     data class OnDeliveryAddressFailure(val message: String) : DeliveryAction
 }
 
-val deliveryReducer = pureReducer<DeliveryState, DeliveryAction> { state, action ->
+val deliveryReducer = reducer<DeliveryState, DeliveryAction> { state, action ->
     when (action) {
         is DeliveryAction.OnDeliveryAddressSelected ->
             state.copy(selectedAddressId = action.addressId).reduce()

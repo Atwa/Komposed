@@ -1,7 +1,7 @@
 package io.github.atwa.komposed.sample.orderdetails.orderinfo
 
 import io.github.atwa.komposed.reducer.ReduceType.Companion.reduce
-import io.github.atwa.komposed.reducer.pureReducer
+import io.github.atwa.komposed.reducer.reducer
 
 data class OrderInfoState(
     val orderId: String,
@@ -13,6 +13,6 @@ data class OrderInfoState(
 
 interface OrderInfoAction
 
-val orderInfoReducer = pureReducer<OrderInfoState, OrderInfoAction> { state, _ ->
+val orderInfoReducer = reducer<OrderInfoState, OrderInfoAction> { state, _ ->
     state.reduce()
 }

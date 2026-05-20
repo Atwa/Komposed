@@ -2,7 +2,7 @@ package io.github.atwa.komposed.testing
 
 import io.github.atwa.komposed.effect.Effect
 import io.github.atwa.komposed.effect.NavigationEffect
-import io.github.atwa.komposed.reducer.PureReducer
+import io.github.atwa.komposed.reducer.Reducer
 import io.github.atwa.komposed.reducer.ReduceType
 import io.github.atwa.komposed.testing.stateDiff
 
@@ -12,7 +12,7 @@ data class PropertyChange(val name: String, val before: Any?, val after: Any?)
 /**
  * The captured output of a single reducer invocation, used for unit-level assertions.
  *
- * Obtain via [PureReducer.given]:
+ * Obtain via [Reducer.given]:
  * ```kotlin
  * deliveryReducer.given(DeliveryState(), DeliveryAction.FetchDeliveryAddresses)
  *     .assertState(DeliveryState(isLoading = true))
@@ -30,7 +30,7 @@ data class ReduceResult<S>(
 )
 
 /** Invokes this reducer with [state] and [action] and wraps the result in a [ReduceResult]. */
-fun <S, A : Any> PureReducer<S, A>.given(state: S, action: A): ReduceResult<S> {
+fun <S, A : Any> Reducer<S, A>.given(state: S, action: A): ReduceResult<S> {
     val result = invoke(state, action)
     return when (result) {
         is ReduceType.Reduce -> ReduceResult(state, result.state, null)

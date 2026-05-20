@@ -5,7 +5,7 @@ import io.github.atwa.komposed.effect.EffectHandler
 import io.github.atwa.komposed.effect.NavigationEffect
 import io.github.atwa.komposed.middleware.Middleware
 import io.github.atwa.komposed.middleware.apply
-import io.github.atwa.komposed.reducer.PureReducer
+import io.github.atwa.komposed.reducer.Reducer
 import io.github.atwa.komposed.reducer.ReduceType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +19,7 @@ import kotlinx.coroutines.plus
 import kotlin.reflect.KClass
 
 /** Observable container for state [S]. Dispatched actions pass through the middleware chain
- *  before being handled by the matching [PureReducer]. Effects emitted by reducers are routed
+ *  before being handled by the matching [Reducer]. Effects emitted by reducers are routed
  *  to registered [EffectHandler]s, which dispatch zero, one, or many actions back into the store.
  *
  *  Threading is enforced internally — client code passes a plain scope with no dispatcher override:
@@ -28,13 +28,13 @@ import kotlin.reflect.KClass
  *  - Actions dispatched back from handlers are posted to [Dispatchers.Main.immediate] */
 interface Store<S> {
     val state: StateFlow<S>
-    val reducers: Map<KClass<*>, PureReducer<S, Any>>
+    val reducers: Map<KClass<*>, Reducer<S, Any>>
     fun dispatch(action: Any)
 }
 
 private class StoreImpl<S>(
     initialValue: S,
-    override val reducers: Map<KClass<*>, PureReducer<S, Any>>,
+    override val reducers: Map<KClass<*>, Reducer<S, Any>>,
     private val effectHandlers: Map<KClass<*>, EffectHandler<Effect, Any>>,
     private val middlewares: List<Middleware<S, Any>>,
     scope: CoroutineScope,
@@ -88,7 +88,7 @@ fun <S> createStore(
     initialValue: S,
     scope: CoroutineScope,
     middlewares: List<Middleware<S, Any>> = emptyList(),
-    reducers: Map<KClass<*>, PureReducer<S, Any>>,
+    reducers: Map<KClass<*>, Reducer<S, Any>>,
     effectHandlers: Map<KClass<*>, EffectHandler<Effect, Any>> = emptyMap(),
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate,
     ioDispatcher: CoroutineDispatcher = Dispatchers.IO,

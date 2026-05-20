@@ -1,5 +1,5 @@
-<svg viewBox="0 0 720 380" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
-  <rect width="720" height="380" fill="#161b22"/>
+<svg viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
+  <rect width="720" height="400" fill="#161b22"/>
   <defs>
     <marker id="arr4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
       <polygon points="0 0,8 3,0 6" fill="#4b5563"/>
@@ -9,66 +9,51 @@
     </marker>
   </defs>
 
-  <rect x="240" y="14" width="240" height="50" rx="10" fill="#1c1917" stroke="#78716c" stroke-width="1.5"/>
-  <text x="360" y="37" text-anchor="middle" fill="#d6d3d1" font-size="13" font-weight="700">Effect&lt;out ACTION&gt;</text>
-  <text x="360" y="54" text-anchor="middle" fill="#78716c" font-size="10">sealed interface — marker for async work</text>
+  <!-- Root Effect Interface -->
+  <rect x="240" y="20" width="240" height="50" rx="10" fill="#1c1917" stroke="#78716c" stroke-width="1.5"/>
+  <text x="360" y="43" text-anchor="middle" fill="#d6d3d1" font-size="13" font-weight="700">Effect</text>
+  <text x="360" y="60" text-anchor="middle" fill="#78716c" font-size="10">interface — marker for all side effects</text>
 
-  <line x1="360" y1="64" x2="360" y2="90" stroke="#374151" stroke-width="1.5"/>
-  <line x1="88" y1="90" x2="632" y2="90" stroke="#374151" stroke-width="1.5"/>
-  <line x1="88" y1="90" x2="88" y2="120" stroke="#ea580c" stroke-width="1.5" marker-end="url(#arr4)"/>
-  <line x1="272" y1="90" x2="272" y2="120" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arr4)"/>
-  <line x1="456" y1="90" x2="456" y2="120" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arr4)"/>
-  <line x1="632" y1="90" x2="632" y2="120" stroke="#9333ea" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <line x1="360" y1="70" x2="360" y2="100" stroke="#374151" stroke-width="1.5"/>
+  <line x1="180" y1="100" x2="540" y2="100" stroke="#374151" stroke-width="1.5"/>
+  <line x1="180" y1="100" x2="180" y2="130" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <line x1="540" y1="100" x2="540" y2="130" stroke="#9333ea" stroke-width="1.5" marker-end="url(#arr4)"/>
 
-  <rect x="20" y="124" width="200" height="100" rx="10" fill="#431407" stroke="#ea580c" stroke-width="1.5"/>
-  <text x="120" y="150" text-anchor="middle" fill="#fdba74" font-size="12" font-weight="700">ActionableEffect</text>
-  <text x="120" y="168" text-anchor="middle" fill="#fb923c" font-size="10">&lt;out ACTION&gt;</text>
-  <line x1="30" y1="176" x2="210" y2="176" stroke="#7c2d12" stroke-width="1"/>
-  <text x="120" y="192" text-anchor="middle" fill="#c2410c" font-size="10">suspend () → ACTION</text>
-  <text x="120" y="208" text-anchor="middle" fill="#9a3412" font-size="10">dispatches returned action</text>
+  <!-- Custom Feature Effects -->
+  <rect x="40" y="134" width="280" height="90" rx="10" fill="#170c3a" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="180" y="158" text-anchor="middle" fill="#c084fc" font-size="12" font-weight="700">Feature Effects</text>
+  <text x="180" y="174" text-anchor="middle" fill="#9333ea" font-size="10">sealed interface FeatureEffect : Effect</text>
+  <line x1="50" y1="182" x2="310" y2="182" stroke="#4c1d95" stroke-width="1"/>
+  <text x="180" y="198" text-anchor="middle" fill="#a855f7" font-size="10">data object FetchData : FeatureEffect</text>
+  <text x="180" y="212" text-anchor="middle" fill="#a855f7" font-size="10">data class AnalyticsEvent(val name: String) : FeatureEffect</text>
 
-  <rect x="204" y="124" width="200" height="100" rx="10" fill="#172554" stroke="#2563eb" stroke-width="1.5"/>
-  <text x="304" y="150" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="700">FlowEffect</text>
-  <text x="304" y="168" text-anchor="middle" fill="#60a5fa" font-size="10">&lt;out ACTION&gt;</text>
-  <line x1="214" y1="176" x2="394" y2="176" stroke="#1e3a8a" stroke-width="1"/>
-  <text x="304" y="192" text-anchor="middle" fill="#3b82f6" font-size="10">() → Flow&lt;ACTION&gt;</text>
-  <text x="304" y="208" text-anchor="middle" fill="#1d4ed8" font-size="10">dispatches each emission</text>
+  <!-- Navigation Effect (Built-in) -->
+  <rect x="400" y="134" width="280" height="90" rx="10" fill="#2e1065" stroke="#9333ea" stroke-width="1.5"/>
+  <text x="540" y="158" text-anchor="middle" fill="#d8b4fe" font-size="12" font-weight="700">NavigationEffect</text>
+  <text x="540" y="174" text-anchor="middle" fill="#c084fc" font-size="10">Built-in : Effect</text>
+  <line x1="410" y1="182" x2="670" y2="182" stroke="#581c87" stroke-width="1"/>
+  <text x="540" y="198" text-anchor="middle" fill="#9333ea" font-size="10">val block: Navigator.() -> Unit</text>
+  <text x="540" y="212" text-anchor="middle" fill="#7e22ce" font-size="10">Handled by navigationMiddleware</text>
 
-  <rect x="388" y="124" width="200" height="100" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5"/>
-  <text x="488" y="150" text-anchor="middle" fill="#5eead4" font-size="12" font-weight="700">SuspendEffect</text>
-  <text x="488" y="168" text-anchor="middle" fill="#2dd4bf" font-size="10">Effect&lt;Nothing&gt;</text>
-  <line x1="398" y1="176" x2="578" y2="176" stroke="#134e4a" stroke-width="1"/>
-  <text x="488" y="192" text-anchor="middle" fill="#0d9488" font-size="10">suspend () → Unit</text>
-  <text x="488" y="208" text-anchor="middle" fill="#115e59" font-size="10">fire-and-forget, no action</text>
+  <line x1="180" y1="224" x2="180" y2="260" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <line x1="540" y1="224" x2="540" y2="260" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr4)"/>
 
-  <rect x="572" y="124" width="140" height="100" rx="10" fill="#2e1065" stroke="#9333ea" stroke-width="1.5"/>
-  <text x="642" y="150" text-anchor="middle" fill="#d8b4fe" font-size="12" font-weight="700">NavigationEffect</text>
-  <text x="642" y="168" text-anchor="middle" fill="#c084fc" font-size="10">Effect&lt;Nothing&gt;</text>
-  <line x1="582" y1="176" x2="702" y2="176" stroke="#4c1d95" stroke-width="1"/>
-  <text x="642" y="192" text-anchor="middle" fill="#9333ea" font-size="10">Navigator.() → Unit</text>
-  <text x="642" y="208" text-anchor="middle" fill="#6d28d9" font-size="10">intercepted by middleware</text>
+  <!-- Effect Handler -->
+  <rect x="40" y="264" width="280" height="96" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="180" y="288" text-anchor="middle" fill="#5eead4" font-size="12" font-weight="700">EffectHandler&lt;E, A&gt;</text>
+  <text x="180" y="306" text-anchor="middle" fill="#0d9488" font-size="10">suspend handle(effect, dispatch)</text>
+  <line x1="50" y1="314" x2="310" y2="314" stroke="#134e4a" stroke-width="1"/>
+  <text x="180" y="330" text-anchor="middle" fill="#2dd4bf" font-size="10">1. dispatch { Action } (single result)</text>
+  <text x="180" y="344" text-anchor="middle" fill="#2dd4bf" font-size="10">2. flow.collect { dispatch { it } } (streaming)</text>
 
-  <line x1="120" y1="224" x2="120" y2="268" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr4)"/>
-  <line x1="304" y1="224" x2="304" y2="268" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr4)"/>
-  <line x1="488" y1="224" x2="488" y2="268" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr4)"/>
-  <line x1="642" y1="224" x2="642" y2="268" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <!-- Navigation Middleware -->
+  <rect x="400" y="264" width="280" height="96" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="540" y="288" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700">Navigation Middleware</text>
+  <text x="540" y="306" text-anchor="middle" fill="#6366f1" font-size="10">Intercepts NavigationEffect</text>
+  <line x1="410" y1="314" x2="670" y2="314" stroke="#312e81" stroke-width="1"/>
+  <text x="540" y="330" text-anchor="middle" fill="#818cf8" font-size="10">Invokes block with bound Navigator</text>
+  <text x="540" y="344" text-anchor="middle" fill="#818cf8" font-size="10">Purely fire-and-forget side effect</text>
 
-  <rect x="20" y="272" width="200" height="44" rx="8" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
-  <text x="120" y="292" text-anchor="middle" fill="#d6d3d1" font-size="10">Awaits result</text>
-  <text x="120" y="308" text-anchor="middle" fill="#78716c" font-size="10">dispatch(resultAction)</text>
-
-  <rect x="204" y="272" width="200" height="44" rx="8" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
-  <text x="304" y="292" text-anchor="middle" fill="#d6d3d1" font-size="10">collect { emit }</text>
-  <text x="304" y="308" text-anchor="middle" fill="#78716c" font-size="10">dispatch(each emission)</text>
-
-  <rect x="388" y="272" width="200" height="44" rx="8" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
-  <text x="488" y="292" text-anchor="middle" fill="#d6d3d1" font-size="10">Runs to completion</text>
-  <text x="488" y="308" text-anchor="middle" fill="#78716c" font-size="10">nothing dispatched</text>
-
-  <rect x="572" y="272" width="140" height="44" rx="8" fill="#1c1917" stroke="#44403c" stroke-width="1"/>
-  <text x="642" y="292" text-anchor="middle" fill="#d6d3d1" font-size="10">navigationMiddleware</text>
-  <text x="642" y="308" text-anchor="middle" fill="#78716c" font-size="10">calls navigator block</text>
-
-  <path d="M 120 316 L 120 350 L 440 350" stroke="#16a34a" stroke-width="1.2" fill="none" stroke-dasharray="4,3" marker-end="url(#arr4g)"/>
-  <text x="220" y="364" fill="#15803d" font-size="10" font-style="italic">ActionableEffect &amp; FlowEffect results loop back into dispatch()</text>
+  <path d="M 180 360 L 180 385 L 540 385" stroke="#16a34a" stroke-width="1.2" fill="none" stroke-dasharray="4,3" marker-end="url(#arr4g)"/>
+  <text x="360" y="380" text-anchor="middle" fill="#15803d" font-size="10" font-style="italic">Dispatched actions re-enter the middleware chain and hit the Action Router</text>
 </svg>

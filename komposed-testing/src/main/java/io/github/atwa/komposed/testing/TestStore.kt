@@ -6,7 +6,7 @@ import io.github.atwa.komposed.effect.Effect
 import io.github.atwa.komposed.effect.EffectHandler
 import io.github.atwa.komposed.middleware.Middleware
 import io.github.atwa.komposed.middleware.createMiddleware
-import io.github.atwa.komposed.reducer.PureReducer
+import io.github.atwa.komposed.reducer.Reducer
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
  */
 class TestStore<S>(
     initialState: S,
-    reducers: Map<KClass<*>, PureReducer<S, Any>>,
+    reducers: Map<KClass<*>, Reducer<S, Any>>,
     middlewares: List<Middleware<S, Any>> = emptyList(),
     effectHandlers: Map<KClass<*>, EffectHandler<Effect, Any>> = emptyMap(),
     scope: TestScope,

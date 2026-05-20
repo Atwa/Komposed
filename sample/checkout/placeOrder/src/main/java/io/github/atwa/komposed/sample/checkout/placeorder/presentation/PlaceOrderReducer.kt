@@ -3,7 +3,7 @@ package io.github.atwa.komposed.sample.checkout.placeorder.presentation
 import io.github.atwa.komposed.effect.NavigationEffect
 import io.github.atwa.komposed.reducer.ReduceType.Companion.reduce
 import io.github.atwa.komposed.reducer.ReduceType.Companion.withEffect
-import io.github.atwa.komposed.reducer.pureReducer
+import io.github.atwa.komposed.reducer.reducer
 import io.github.atwa.komposed.sample.core.navigation.OrderDetailsRoute
 
 data class PlaceOrderState(
@@ -27,7 +27,7 @@ sealed interface PlaceOrderAction {
     data class CheckoutFailed(val message: String) : PlaceOrderAction
 }
 
-val placeOrderReducer = pureReducer<PlaceOrderState, PlaceOrderAction> { state, action ->
+val placeOrderReducer = reducer<PlaceOrderState, PlaceOrderAction> { state, action ->
     when (action) {
         is PlaceOrderAction.Checkout -> action.params.addressId?.let {
             state.copy(isCheckoutInProgress = true, errorMessage = null).withEffect {

@@ -3,7 +3,7 @@ package io.github.atwa.komposed
 /**
  * An optics pair that focuses on a local state slice [L] within a global state [G].
  *
- * Used by [PureReducer.pullback] to lift a reducer that operates on [L] into one that operates
+ * Used by [Reducer.pullback] to lift a reducer that operates on [L] into one that operates
  * on [G], without the local reducer needing any knowledge of the surrounding state shape.
  *
  * @property get extracts the local slice from the global state.

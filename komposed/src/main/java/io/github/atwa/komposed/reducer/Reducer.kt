@@ -1,24 +1,24 @@
-package io.github.atwa.komposed.reducer
+    package io.github.atwa.komposed.reducer
 
 import io.github.atwa.komposed.Lens
 
 /** A side-effect-free reducer: maps (state, action) to a [ReduceType] with no external dependencies. */
-typealias PureReducer<STATE, ACTION> = (
+typealias Reducer<STATE, ACTION> = (
     state: STATE,
     action: ACTION,
 ) -> ReduceType<STATE>
 
-/** Creates a [PureReducer] from a lambda. */
-fun <STATE, ACTION> pureReducer(
+/** Creates a [Reducer] from a lambda. */
+fun <STATE, ACTION> reducer(
     reduce: (STATE, ACTION) -> ReduceType<STATE>,
-): PureReducer<STATE, ACTION> = { state, action -> reduce(state, action) }
+): Reducer<STATE, ACTION> = { state, action -> reduce(state, action) }
 
-/** Lifts a [PureReducer] on a local state slice into a [PureReducer] on the global state,
+/** Lifts a [Reducer] on a local state slice into a [Reducer] on the global state,
  *  using [selector] to extract the slice and [modifier] to write it back. */
-fun <GLOBAL, STATE, ACTION> PureReducer<STATE, ACTION>.pullback(
+fun <GLOBAL, STATE, ACTION> Reducer<STATE, ACTION>.pullback(
     selector: (global: GLOBAL) -> STATE,
     modifier: (global: GLOBAL, local: STATE) -> GLOBAL,
-): PureReducer<GLOBAL, ACTION> = { global, action ->
+): Reducer<GLOBAL, ACTION> = { global, action ->
     when (val result = invoke(selector(global), action)) {
         is ReduceType.Reduce -> ReduceType.Reduce(modifier(global, result.state))
         is ReduceType.ReduceWithEffect -> ReduceType.ReduceWithEffect(
@@ -32,7 +32,7 @@ fun <GLOBAL, STATE, ACTION> PureReducer<STATE, ACTION>.pullback(
     }
 }
 
-/** Lifts a [PureReducer] using a [Lens] for zero-boilerplate pullback. */
-fun <GLOBAL, STATE, ACTION> PureReducer<STATE, ACTION>.pullback(
+/** Lifts a [Reducer] using a [Lens] for zero-boilerplate pullback. */
+fun <GLOBAL, STATE, ACTION> Reducer<STATE, ACTION>.pullback(
     lens: Lens<GLOBAL, STATE>,
-): PureReducer<GLOBAL, ACTION> = pullback(selector = lens.get, modifier = lens.set)
+): Reducer<GLOBAL, ACTION> = pullback(selector = lens.get, modifier = lens.set)
