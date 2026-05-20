@@ -16,17 +16,35 @@ Inspired by the core ideas of [The Composable Architecture (TCA)](https://github
 
 ## Architecture Diagrams
 
-A full visual reference with six interactive SVG diagrams is available in **[`docs/architecture.html`](docs/architecture.html)**.
-Open it in any browser — it is a single self-contained file, no server required.
+### 1 — Unidirectional Data Flow
+Every state change follows a single predictable path. Actions flow down through middleware into reducers; new state and effects flow back up to the UI.
 
-| # | Diagram | What it shows |
-|---|---------|--------------|
-| 1 | **Unidirectional Data Flow** | Full UDF cycle: UI → Middleware → Action Router → Reducer → ReduceType → StateFlow / Effect coroutine → loop |
-| 2 | **Reducer Type Hierarchy** | How `reducer<S,A,H>{}` becomes a `ReducerFactory`, how `.provide(handler)` yields a `PureReducer`, and how `.pullback(lens)` lifts it to global state |
-| 3 | **State Composition via Lenses** | `CheckoutState` decomposed into three sub-states; each reducer sees only its own slice |
-| 4 | **Effect Types & Lifecycle** | `ActionableEffect`, `FlowEffect`, `SuspendEffect`, `NavigationEffect` — what each runs and what it dispatches back |
-| 5 | **Module Structure** | Gradle module tree and the internal `presentation / domain / data` layering per feature |
-| 6 | **Testing Architecture** | Unit / Integration / Utility bands mapped to each testing tool |
+![Unidirectional Data Flow](docs/diagram-1-data-flow.svg)
+
+### 2 — Reducer Type Hierarchy
+How a `reducer<S,A,H>{}` with dependencies becomes a registered `PureReducer` in the store's action map.
+
+![Reducer Type Hierarchy](docs/diagram-2-reducer-hierarchy.svg)
+
+### 3 — State Composition via Lenses
+A single global state is sliced into feature sub-states using `Lens<GLOBAL, LOCAL>`. Each reducer operates only on its own slice — completely unaware of siblings.
+
+![State Composition via Lenses](docs/diagram-3-state-composition.svg)
+
+### 4 — Effect Types & Lifecycle
+Effects are the controlled escape hatch for async work. The store launches them in the background and re-dispatches any produced action back through the full middleware chain.
+
+![Effect Types and Lifecycle](docs/diagram-4-effect-types.svg)
+
+### 5 — Module Structure
+Core library modules have zero Android feature dependencies; each sample feature is its own Gradle module following the same internal layering.
+
+![Module Structure](docs/diagram-5-module-structure.svg)
+
+### 6 — Testing Architecture
+Each layer of the architecture has a dedicated testing tool. Pure reducers need no coroutines; integration tests use `TestScope` for deterministic async.
+
+![Testing Architecture](docs/diagram-6-testing.svg)
 
 ---
 
@@ -754,50 +772,6 @@ data/           Repository interface + impl · EffectHandler impl · Hilt @Binds
 ```
 
 > See **Diagram 5** in [`docs/architecture.html`](docs/architecture.html) for the full visual tree.
-
----
-
-## Publishing to Maven Central
-
-### Prerequisites
-
-1. **Sonatype account** — register at [central.sonatype.com](https://central.sonatype.com).  
-   Claim the namespace `io.github.atwa` by verifying your GitHub account.
-
-2. **GPG key** — generate and upload to a public keyserver:
-   ```bash
-   gpg --gen-key
-   gpg --keyserver keyserver.ubuntu.com --send-keys <KEY_ID>
-   # Export the private key for CI
-   gpg --armor --export-secret-keys <KEY_ID>
-   ```
-
-3. **GitHub Secrets** — add these four secrets to your repository:
-
-   | Secret | Value |
-   |---|---|
-   | `OSSRH_USERNAME` | Sonatype Central Portal token username |
-   | `OSSRH_PASSWORD` | Sonatype Central Portal token password |
-   | `GPG_PRIVATE_KEY` | Armored private key (output of `--export-secret-keys`) |
-   | `GPG_KEY_PASSWORD` | GPG passphrase |
-
-### Release
-
-Push a version tag — the GitHub Actions workflow publishes both artifacts automatically:
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-### Local publish (test before releasing)
-
-```bash
-./gradlew :komposed:publishReleasePublicationToMavenLocalRepository \
-          :komposed-testing:publishReleasePublicationToMavenLocalRepository
-```
-
-Artifacts land in `build/local-publish/`, which is pre-configured as a Maven repository in `settings.gradle.kts` for the sample app.
 
 ---
 

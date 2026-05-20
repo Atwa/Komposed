@@ -1,0 +1,88 @@
+<svg viewBox="0 0 720 760" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
+  <rect width="720" height="760" fill="#161b22"/>
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#4b5563"/>
+    </marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#16a34a"/>
+    </marker>
+    <marker id="arr-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#ea580c"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#2563eb"/>
+    </marker>
+    <marker id="arr-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#9333ea"/>
+    </marker>
+  </defs>
+
+  <rect x="30" y="20" width="660" height="76" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="360" y="50" text-anchor="middle" fill="#a5b4fc" font-size="13" font-weight="700">Compose UI</text>
+  <text x="360" y="70" text-anchor="middle" fill="#6366f1" font-size="11">collectAsStateWithLifecycle(store.state)   ·   store.dispatch(action)</text>
+  <text x="360" y="88" text-anchor="middle" fill="#4f46e5" font-size="10">Recomposes automatically whenever StateFlow emits a new value</text>
+
+  <line x1="360" y1="96" x2="360" y2="126" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="375" y="116" fill="#6b7280" font-size="10" font-style="italic">dispatch(Action)</text>
+
+  <rect x="30" y="130" width="660" height="76" rx="10" fill="#170c3a" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="360" y="160" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">Middleware Chain</text>
+  <text x="360" y="180" text-anchor="middle" fill="#9333ea" font-size="11">loggingMiddleware  →  analyticsMiddleware  →  navigationMiddleware</text>
+  <text x="360" y="198" text-anchor="middle" fill="#6d28d9" font-size="10">Each calls next(action) to forward; can intercept, log, or swallow actions</text>
+
+  <line x1="360" y1="206" x2="360" y2="236" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="375" y="226" fill="#6b7280" font-size="10" font-style="italic">next(action)</text>
+
+  <rect x="30" y="240" width="660" height="64" rx="10" fill="#172554" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="360" y="268" text-anchor="middle" fill="#93c5fd" font-size="13" font-weight="700">Action Router</text>
+  <text x="360" y="288" text-anchor="middle" fill="#3b82f6" font-size="11">Map&lt;KClass&lt;*&gt;, PureReducer&lt;S, Any&gt;&gt;  ·  matched by action::class</text>
+
+  <line x1="360" y1="304" x2="360" y2="334" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="375" y="324" fill="#6b7280" font-size="10" font-style="italic">invoke(state, action)</text>
+
+  <rect x="30" y="338" width="660" height="64" rx="10" fill="#042f2e" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="360" y="367" text-anchor="middle" fill="#5eead4" font-size="13" font-weight="700">PureReducer&lt;S, A&gt;</text>
+  <text x="360" y="388" text-anchor="middle" fill="#0d9488" font-size="11">(state: S, action: A) → ReduceType&lt;S, A&gt;   ·   pure function — no I/O, no coroutines</text>
+
+  <line x1="360" y1="402" x2="360" y2="428" stroke="#374151" stroke-width="1.5"/>
+  <line x1="155" y1="428" x2="565" y2="428" stroke="#374151" stroke-width="1.5"/>
+  <line x1="155" y1="428" x2="155" y2="454" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <line x1="360" y1="428" x2="360" y2="454" stroke="#4b5563" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="565" y1="428" x2="565" y2="454" stroke="#ea580c" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  <rect x="50" y="458" width="210" height="70" rx="10" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="155" y="484" text-anchor="middle" fill="#86efac" font-size="12" font-weight="700">Reduce</text>
+  <text x="155" y="502" text-anchor="middle" fill="#4ade80" font-size="10">state.reduce()</text>
+  <text x="155" y="518" text-anchor="middle" fill="#15803d" font-size="10">pure state transition only</text>
+
+  <rect x="255" y="458" width="210" height="70" rx="10" fill="#1c1917" stroke="#78716c" stroke-width="1.5"/>
+  <text x="360" y="484" text-anchor="middle" fill="#d6d3d1" font-size="12" font-weight="700">ReduceWithEffect</text>
+  <text x="360" y="502" text-anchor="middle" fill="#a8a29e" font-size="10">state.withEffect { ... }</text>
+  <text x="360" y="518" text-anchor="middle" fill="#78716c" font-size="10">state change + async effect</text>
+
+  <rect x="460" y="458" width="210" height="70" rx="10" fill="#431407" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="565" y="484" text-anchor="middle" fill="#fdba74" font-size="12" font-weight="700">SideEffect</text>
+  <text x="565" y="502" text-anchor="middle" fill="#fb923c" font-size="10">effect { ... }</text>
+  <text x="565" y="518" text-anchor="middle" fill="#c2410c" font-size="10">effect only, state unchanged</text>
+
+  <line x1="155" y1="528" x2="155" y2="588" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <path d="M 330 528 Q 280 558 235 588" stroke="#4b5563" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <path d="M 390 528 Q 440 558 490 588" stroke="#4b5563" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <line x1="565" y1="528" x2="565" y2="588" stroke="#ea580c" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  <rect x="50" y="592" width="370" height="64" rx="10" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="235" y="621" text-anchor="middle" fill="#86efac" font-size="12" font-weight="700">StateFlow&lt;S&gt;</text>
+  <text x="235" y="641" text-anchor="middle" fill="#4ade80" font-size="11">_state.update { result.state }  ·  UI recompose triggered</text>
+
+  <rect x="440" y="592" width="230" height="64" rx="10" fill="#431407" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="555" y="617" text-anchor="middle" fill="#fdba74" font-size="12" font-weight="700">Effect Coroutine</text>
+  <text x="555" y="634" text-anchor="middle" fill="#fb923c" font-size="10">scope.launch { handleEffect(effect) }</text>
+  <text x="555" y="650" text-anchor="middle" fill="#c2410c" font-size="10">ActionableEffect · FlowEffect · SuspendEffect</text>
+
+  <path d="M 50 624 L 18 624 L 18 58 L 30 58" stroke="#16a34a" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-green)"/>
+  <path d="M 670 624 L 702 624 L 702 58 L 690 58" stroke="#ea580c" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-orange)"/>
+  <text x="360" y="715" text-anchor="middle" fill="#6b7280" font-size="11" font-style="italic">Effect result re-enters as dispatch(action) — passes through full middleware chain</text>
+  <text x="9" y="400" fill="#16a34a" font-size="10" transform="rotate(-90,9,400)" text-anchor="middle">new state → UI</text>
+  <text x="711" y="400" fill="#ea580c" font-size="10" transform="rotate(90,711,400)" text-anchor="middle">result action → dispatch</text>
+</svg>
