@@ -25,23 +25,26 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        # Strips the leading 'v' so tag v1.2.3 becomes VERSION_NAME=1.2.3
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
 
-      - name: Publish :komposed
-        run: ./gradlew :komposed:publishReleasePublicationToMavenCentralRepository
+      - name: Publish both modules to local staging directory
+        run: |
+          ./gradlew \
+            :komposed:publishReleasePublicationToMavenLocalRepository \
+            :komposed-testing:publishReleasePublicationToMavenLocalRepository
         env:
           VERSION_NAME:     ${{ steps.version.outputs.VERSION }}
-          OSSRH_USERNAME:   ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD:   ${{ secrets.OSSRH_PASSWORD }}
           GPG_PRIVATE_KEY:  ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_KEY_PASSWORD: ${{ secrets.GPG_KEY_PASSWORD }}
 
-      - name: Publish :komposed-testing
-        run: ./gradlew :komposed-testing:publishReleasePublicationToMavenCentralRepository
-        env:
-          VERSION_NAME:     ${{ steps.version.outputs.VERSION }}
-          OSSRH_USERNAME:   ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD:   ${{ secrets.OSSRH_PASSWORD }}
-          GPG_PRIVATE_KEY:  ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_KEY_PASSWORD: ${{ secrets.GPG_KEY_PASSWORD }}
+      - name: Bundle and upload to Maven Central Portal
+        run: |
+          cd build/local-publish
+          zip -r ../../bundle.zip .
+          cd ../..
+          TOKEN=$(echo -n "${{ secrets.OSSRH_USERNAME }}:${{ secrets.OSSRH_PASSWORD }}" | base64 -w0)
+          curl --fail-with-body \
+            --request POST \
+            --header "Authorization: Bearer $TOKEN" \
+            --form bundle=@bundle.zip \
+            "https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC"

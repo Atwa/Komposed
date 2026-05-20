@@ -101,19 +101,6 @@ afterEvaluate {
 
         repositories {
             maven {
-                name = "MavenCentral"
-                url = if (versionName.endsWith("SNAPSHOT"))
-                    uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-                else
-                    uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-                credentials {
-                    username = project.findProperty("OSSRH_USERNAME") as? String
-                        ?: System.getenv("OSSRH_USERNAME")
-                    password = project.findProperty("OSSRH_PASSWORD") as? String
-                        ?: System.getenv("OSSRH_PASSWORD")
-                }
-            }
-            maven {
                 name = "MavenLocal"
                 url = uri("${rootDir}/build/local-publish")
             }
