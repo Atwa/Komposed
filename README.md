@@ -45,15 +45,92 @@ Each layer of the architecture has a dedicated testing tool. Pure reducers need 
 
 ## Why Komposed?
 
-| What you get | Why it matters |
+### Built for production-scale complexity
+
+Real production screens are rarely simple. A checkout flow aggregates cart items, delivery addresses, billing summaries, and payment state — all in one screen, all updating concurrently, all potentially triggering each other. The naive approach is a god ViewModel with 800 lines of interleaved business logic. Komposed solves this differently: **each domain becomes an isolated feature module** — its own state, reducer, and effect handler — and the screen is their composition, not their owner.
+
+```kotlin
+reducers {
+    cartReducer.scoped(CheckoutState.cartLens)
+    deliveryReducer.scoped(CheckoutState.deliveryLens)
+    placeOrderReducer.scoped(CheckoutState.placeOrderLens)
+}
+effectHandlers {
+    cartEffectHandler.register()
+    deliveryEffectHandler.register()
+    placeOrderEffectHandler.register()
+}
+```
+
+Adding a new feature to a screen is registering its reducer and handler. The existing features don't change. `DeliveryReducer` has zero awareness of `CartState`. Modules stay independent; the store is their meeting point.
+
+---
+
+### Single Responsibility — enforced by the architecture
+
+Komposed doesn't ask teams to follow SRP by convention. The architecture enforces it structurally by assigning each layer exactly one job:
+
+| Layer | Sole responsibility |
 |---|---|
-| Pure reducers | No I/O, no handler injection — trivially unit-testable with plain assertions |
-| Typed sealed effects | Effects are inspectable values, not opaque lambdas — fully assertable in tests |
-| Compile-time action type safety | Dispatched actions from handlers are constrained to the feature's own action type |
-| Lens-based composition | Multiple feature reducers share one global store with zero boilerplate |
-| Extensible middleware | Logging, analytics, A/B flags — none of it touches a reducer |
-| Navigation as an effect | `NavController` never leaks into a ViewModel or reducer |
-| Fluent test DSL | `reducer.given(state, action).assertState(…).assertEffect<MyEffect>()` |
+| **Reducer** | Receives state + action, returns next state and optionally an effect. No I/O. No coroutines. No dependencies. Pure function. |
+| **EffectHandler** | Performs async work (network, disk, streams). Dispatches resulting actions back to the store. Never mutates state directly. |
+| **Store** | Routes actions through middleware, invokes reducers, launches effect handlers on the right thread. The runtime — not a god object. |
+| **Middleware** | Intercepts every action before it reaches a reducer. The right place for logging, analytics, A/B flags, and navigation. None of it belongs in business logic. |
+
+Because each layer has one job, changing one never forces changes in the others. The delivery reducer can be rewritten without touching the store, the middleware, or the tests for any other feature.
+
+---
+
+### Unidirectional data flow — predictable by construction
+
+Every state change follows one path:
+
+```
+Action → Middleware → Reducer → State + Effect → EffectHandler → Action → …
+```
+
+There is no way to mutate state from a coroutine, a callback, or a side channel. State is always a deterministic function of the actions that preceded it. This makes it trivial to reproduce any bug by replaying the action sequence and trivial to understand any behaviour by reading the reducer — a pure function with no hidden inputs.
+
+---
+
+### Testability as a first-class concern
+
+The framework provides purpose-built APIs for each layer, so teams spend time asserting app behaviour — not fighting boilerplate.
+
+**Reducers** are plain functions. No coroutines, no mocks, no `TestScope`:
+
+```kotlin
+cartReducer.given(CartState(), CartAction.LoadCart)
+    .assertState(CartState(isLoading = true))
+    .assertEffect<CartEffect.Load>()
+```
+
+**Effect handlers** receive an anonymous repository; dispatched actions come back as a `List<A>` — no capture variable needed:
+
+```kotlin
+val result = handlerWith(repo).handle(CartEffect.Load)
+assert(result.single() == CartAction.CartLoaded(items))
+```
+
+**Integration tests** use `TestStore`, which records every dispatched action in order — including those produced by effects — so the full app flow is assertable as a sequence:
+
+```kotlin
+store.dispatch(CartAction.LoadCart)
+advanceUntilIdle()
+store.assertState(CheckoutState(cart = CartState(items = listOf(testItem))))
+store.assertActionsDispatched(CartAction.LoadCart, CartAction.CartLoaded(testItem))
+```
+
+**Navigation** is an assertable effect, not a side channel through a mocked `NavController`:
+
+```kotlin
+placeOrderReducer.given(state, PlaceOrderAction.OrderPlaced(orderId = "ORD-99"))
+    .assertNavigationEffect { nav ->
+        assert(nav.navigations.last() == OrderDetailsRoute(orderId = "ORD-99"))
+    }
+```
+
+Every layer — state transitions, effect dispatch, action ordering, and navigation — is independently and exhaustively testable without a device or an emulator.
 
 ---
 
@@ -92,7 +169,7 @@ testImplementation(libs.komposed.testing)
 
 ```
 io.github.atwa.komposed            → Store, Lens (main entry points)
-io.github.atwa.komposed.reducer    → ReduceType, PureReducer, ReducerRegistry, DSLs
+io.github.atwa.komposed.reducer    → ReduceType, Reducer, ReducerRegistry, DSLs
 io.github.atwa.komposed.effect     → Effect, EffectHandler
 io.github.atwa.komposed.middleware → Middleware, navigationMiddleware
 io.github.atwa.komposed.navigation → Navigator, NavOptions, PopUpTo
@@ -116,9 +193,9 @@ sealed interface CounterAction {
 
 // 3. Reducer (pure — no I/O, no injected handlers)
 import io.github.atwa.komposed.reducer.ReduceType.Companion.reduce
-import io.github.atwa.komposed.reducer.pureReducer
+import io.github.atwa.komposed.reducer.reducer
 
-val counterReducer = pureReducer<CounterState, CounterAction> { state, action ->
+val counterReducer = reducer<CounterState, CounterAction> { state, action ->
     when (action) {
         CounterAction.Increment -> state.copy(count = state.count + 1).reduce()
         CounterAction.Decrement -> state.copy(count = state.count - 1).reduce()
@@ -213,9 +290,9 @@ import io.github.atwa.komposed.reducer.ReduceType.Companion.effect
 Reducers are always pure — they receive state and action, return a `ReduceType`, and have zero external dependencies. Side effects are expressed as typed sealed values, never as lambdas or injected handler calls.
 
 ```kotlin
-import io.github.atwa.komposed.reducer.pureReducer
+import io.github.atwa.komposed.reducer.reducer
 
-val cartReducer = pureReducer<CartState, CartAction> { state, action ->
+val cartReducer = reducer<CartState, CartAction> { state, action ->
     when (action) {
         CartAction.LoadCart ->
             state.copy(isLoading = true).withEffect { CartEffect.Load }
@@ -331,7 +408,7 @@ import io.github.atwa.komposed.lens
 val cartLens = lens(CheckoutState::cart) { copy(cart = it) }
 
 // Pull a local reducer up to global state
-val globalCartReducer: PureReducer<CheckoutState, CartAction> =
+val globalCartReducer: Reducer<CheckoutState, CartAction> =
     cartReducer.pullback(cartLens)
 ```
 
@@ -377,8 +454,8 @@ val store = createStore(
 
 | Method | Use when |
 |---|---|
-| `PureReducer.scoped(lens)` | Reducer operates on a local state slice |
-| `PureReducer.register()` | Reducer already operates on the full global state |
+| `Reducer.scoped(lens)` | Reducer operates on a local state slice |
+| `Reducer.register()` | Reducer already operates on the full global state |
 
 **`effectHandlers { }` registration:**
 
