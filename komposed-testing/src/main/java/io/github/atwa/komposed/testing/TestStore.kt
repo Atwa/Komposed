@@ -7,6 +7,7 @@ import io.github.atwa.komposed.effect.EffectHandler
 import io.github.atwa.komposed.middleware.Middleware
 import io.github.atwa.komposed.middleware.createMiddleware
 import io.github.atwa.komposed.reducer.Reducer
+import io.github.atwa.komposed.subscription.Subscription
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -27,6 +28,7 @@ class TestStore<S>(
     reducers: Map<KClass<*>, Reducer<S, Any>>,
     middlewares: List<Middleware<S, Any>> = emptyList(),
     effectHandlers: Map<KClass<*>, EffectHandler<Effect, Any>> = emptyMap(),
+    subscriptions: List<Subscription<S, *>> = emptyList(),
     scope: TestScope,
 ) {
     private val _dispatchedActions = mutableListOf<Any>()
@@ -45,6 +47,7 @@ class TestStore<S>(
         middlewares = listOf(recordingMiddleware) + middlewares,
         reducers = reducers,
         effectHandlers = effectHandlers,
+        subscriptions = subscriptions,
         mainDispatcher = testDispatcher,
         ioDispatcher = testDispatcher,
     )

@@ -76,6 +76,7 @@ Komposed doesn't ask teams to follow SRP by convention. The architecture enforce
 | **EffectHandler** | Performs async work (network, disk, streams). Dispatches resulting actions back to the store. Never mutates state directly. |
 | **Store** | Routes actions through middleware, invokes reducers, launches effect handlers on the right thread. The runtime — not a god object. |
 | **Middleware** | Intercepts every action before it reaches a reducer. The right place for logging, analytics, A/B flags, and navigation. None of it belongs in business logic. |
+| **Subscription** | Watches a derived value of global state. When the value changes after any state update, dispatches a new action — enabling reactive cross-domain communication without coupling modules together. |
 
 Because each layer has one job, changing one never forces changes in the others. The delivery reducer can be rewritten without touching the store, the middleware, or the tests for any other feature.
 
@@ -130,6 +131,19 @@ placeOrderReducer.given(state, PlaceOrderAction.OrderPlaced(orderId = "ORD-99"))
     }
 ```
 
+**Cross-domain subscriptions** are testable as end-to-end integration scenarios in `TestStore`. The subscription is declared once at the composition boundary; the modules it connects remain independently testable in isolation:
+
+```kotlin
+@Test
+fun `selecting a delivery address pushes its fee into BillState via subscription`() = runTest {
+    val store = buildStore(this)
+    store.dispatch(DeliveryAction.FetchDeliveryAddresses)
+    advanceUntilIdle()
+    store.dispatch(DeliveryAction.OnDeliveryAddressSelected(1L))
+    assert(store.state.value.billState.deliveryFees == 10.0)
+}
+```
+
 Every layer — state transitions, effect dispatch, action ordering, and navigation — is independently and exhaustively testable without a device or an emulator.
 
 ---
@@ -168,11 +182,12 @@ testImplementation(libs.komposed.testing)
 ## Package Structure
 
 ```
-io.github.atwa.komposed            → Store, Lens (main entry points)
-io.github.atwa.komposed.reducer    → ReduceType, Reducer, ReducerRegistry, DSLs
-io.github.atwa.komposed.effect     → Effect, EffectHandler
-io.github.atwa.komposed.middleware → Middleware, navigationMiddleware
-io.github.atwa.komposed.navigation → Navigator, NavOptions, PopUpTo
+io.github.atwa.komposed              → Store, Lens (main entry points)
+io.github.atwa.komposed.reducer      → ReduceType, Reducer, ReducerRegistry, DSLs
+io.github.atwa.komposed.effect       → Effect, EffectHandler
+io.github.atwa.komposed.middleware   → Middleware, navigationMiddleware
+io.github.atwa.komposed.navigation   → Navigator, NavOptions, PopUpTo
+io.github.atwa.komposed.subscription → Subscription, SubscriptionRegistry, subscriptions { } DSL
 ```
 
 ---
@@ -447,6 +462,12 @@ val store = createStore(
         deliveryEffectHandler.register()
         placeOrderEffectHandler.register()
     },
+    subscriptions = subscriptions {
+        subscription(
+            selector = { it.deliveryFee },
+            action   = { BillAction.DeliveryFeeUpdated(it) },
+        )
+    },
 )
 ```
 
@@ -470,10 +491,11 @@ The effect type `E` is inferred automatically — no explicit type argument need
 
 After a reducer returns:
 
-- `Reduce` → state updated on main thread
-- `ReduceWithEffect` → state updated on main thread, then effect launched on `Dispatchers.IO`
+- `Reduce` → state updated on main thread; subscriptions evaluated
+- `ReduceWithEffect` → state updated on main thread; subscriptions evaluated; effect launched on `Dispatchers.IO`
 - `SideEffect` → effect launched on `Dispatchers.IO`, no state change
 - `NavigationEffect` — re-dispatched through the full middleware chain on the main thread; `navigationMiddleware` intercepts and executes it; reducers never see it
+- **Subscription** — after every state update, each registered selector is evaluated against the previous and new state; if the derived value changed, the corresponding action is dispatched through the full pipeline automatically
 
 ---
 
@@ -634,12 +656,92 @@ is PlaceOrderAction.Checkout -> action.params.addressId?.let {
 
 ---
 
+## Subscriptions
+
+Subscriptions solve a specific production problem: one feature module reacting to state changes in a sibling module **without importing it**.
+
+A `Subscription` pairs a state selector `(S) -> T` with an action factory `(T) -> Any`. After every state update the store evaluates each selector; if the derived value changed, the action is dispatched automatically through the full pipeline — middleware, reducer, and any further effects.
+
+```kotlin
+import io.github.atwa.komposed.subscription.subscriptions
+
+subscriptions = subscriptions {
+    subscription(
+        selector = { state -> state.deliveryFee },
+        action   = { fee -> BillAction.DeliveryFeeUpdated(fee) },
+    )
+}
+```
+
+### The decoupling guarantee
+
+The `BillModule` defines `DeliveryFeeUpdated` as a plain action carrying a `Double`. It has no import from `DeliveryModule` or `CheckoutModule`. The wiring lives entirely at the composition boundary — the ViewModel, which already sees both modules:
+
+```kotlin
+// BillModule — no knowledge of DeliveryModule
+sealed interface BillAction {
+    data class DeliveryFeeUpdated(val fee: Double) : BillAction
+    // ...
+}
+
+val billReducer = reducer<BillState, BillAction> { state, action ->
+    when (action) {
+        is BillAction.DeliveryFeeUpdated -> state.copy(deliveryFees = action.fee).reduce()
+        // ...
+    }
+}
+```
+
+```kotlin
+// CheckoutViewModel — composition boundary, can see both modules
+subscriptions = subscriptions {
+    subscription(
+        selector = { it.deliveryFee },          // reads from DeliveryState via CheckoutState
+        action   = { BillAction.DeliveryFeeUpdated(it) },  // feeds into BillReducer
+    )
+}
+```
+
+### Semantics
+
+- The selector is evaluated on the **previous** and **new** state after every `Reduce` or `ReduceWithEffect`
+- The action is dispatched **only when the value changes** — identical values produce no dispatch
+- Dispatched actions pass through the **full middleware chain** — logged, tracked by analytics, visible in `TestStore.dispatchedActions`
+- `SideEffect` results (no state change) do not trigger subscription evaluation
+
+### Testing subscriptions
+
+```kotlin
+@Test
+fun `selecting a delivery address pushes its fee into BillState via subscription`() = runTest {
+    val store = buildStore(this)  // store wired with the subscription
+    store.dispatch(DeliveryAction.FetchDeliveryAddresses)
+    advanceUntilIdle()
+    store.dispatch(DeliveryAction.OnDeliveryAddressSelected(1L))
+    assert(store.state.value.billState.deliveryFees == 10.0)
+}
+
+@Test
+fun `subscription does not fire when delivery fee is unchanged`() = runTest {
+    val store = buildStore(this)
+    store.dispatch(DeliveryAction.FetchDeliveryAddresses)
+    advanceUntilIdle()
+    store.dispatch(DeliveryAction.OnDeliveryAddressSelected(1L))
+    val feeBefore = store.state.value.billState.deliveryFees
+    store.dispatch(DeliveryAction.OnDeliveryAddressSelected(1L))  // same address, same fee
+    assert(store.state.value.billState.deliveryFees == feeBefore)
+}
+```
+
+---
+
 ## ViewModel Integration
 
 The ViewModel creates the store lazily and owns the coroutine scope. It injects typed `EffectHandler` instances directly — no intermediate feature interfaces:
 
 ```kotlin
 import io.github.atwa.komposed.effect.EffectHandler
+import io.github.atwa.komposed.subscription.subscriptions
 
 @HiltViewModel
 class CheckoutViewModel @Inject constructor(
@@ -667,6 +769,12 @@ class CheckoutViewModel @Inject constructor(
                 cartEffectHandler.register()
                 deliveryEffectHandler.register()
                 placeOrderEffectHandler.register()
+            },
+            subscriptions = subscriptions {
+                subscription(
+                    selector = { it.deliveryFee },
+                    action   = { BillAction.DeliveryFeeUpdated(it) },
+                )
             },
         )
     }

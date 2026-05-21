@@ -1,5 +1,5 @@
-<svg viewBox="0 0 720 760" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
-  <rect width="720" height="760" fill="#161b22"/>
+<svg viewBox="0 0 720 840" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',sans-serif">
+  <rect width="720" height="840" fill="#161b22"/>
   <defs>
     <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
       <polygon points="0 0,8 3,0 6" fill="#4b5563"/>
@@ -80,9 +80,24 @@
   <text x="555" y="634" text-anchor="middle" fill="#fb923c" font-size="10">scope.launch { handleEffect(effect) }</text>
   <text x="555" y="650" text-anchor="middle" fill="#c2410c" font-size="10">EffectHandler&lt;E, A&gt;  ·  dispatch { } runs on IO</text>
 
+  <!-- Arrow: StateFlow → Subscriptions -->
+  <line x1="235" y1="656" x2="235" y2="682" stroke="#9333ea" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <text x="250" y="673" fill="#9333ea" font-size="10" font-style="italic">notifySubscriptions</text>
+
+  <!-- Subscriptions box -->
+  <rect x="50" y="686" width="370" height="65" rx="10" fill="#2e1065" stroke="#9333ea" stroke-width="1.5"/>
+  <text x="235" y="711" text-anchor="middle" fill="#d8b4fe" font-size="12" font-weight="700">Subscriptions</text>
+  <text x="235" y="729" text-anchor="middle" fill="#a855f7" font-size="10">selector(prev) ≠ selector(new)  →  action(newValue)</text>
+  <text x="235" y="745" text-anchor="middle" fill="#7e22ce" font-size="10">re-enters as dispatch(action)  ·  passes through full middleware chain</text>
+
+  <!-- Subscription feedback loop (purple dashed) back to Middleware Chain -->
+  <path d="M 50 718 L 10 718 L 10 168 L 30 168" stroke="#9333ea" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-purple)"/>
+  <text x="5" y="460" fill="#9333ea" font-size="10" transform="rotate(-90,5,460)" text-anchor="middle">selector changed → dispatch</text>
+
+  <!-- Existing feedback loops -->
   <path d="M 50 624 L 18 624 L 18 58 L 30 58" stroke="#16a34a" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-green)"/>
   <path d="M 670 624 L 702 624 L 702 58 L 690 58" stroke="#ea580c" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-orange)"/>
-  <text x="360" y="715" text-anchor="middle" fill="#6b7280" font-size="11" font-style="italic">Effect result re-enters as dispatch(action) — passes through full middleware chain</text>
+  <text x="360" y="820" text-anchor="middle" fill="#6b7280" font-size="11" font-style="italic">Effect result re-enters as dispatch(action) — passes through full middleware chain</text>
   <text x="9" y="400" fill="#16a34a" font-size="10" transform="rotate(-90,9,400)" text-anchor="middle">new state → UI</text>
   <text x="711" y="400" fill="#ea580c" font-size="10" transform="rotate(90,711,400)" text-anchor="middle">result action → dispatch</text>
 </svg>

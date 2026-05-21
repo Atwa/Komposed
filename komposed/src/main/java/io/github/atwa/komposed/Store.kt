@@ -7,6 +7,7 @@ import io.github.atwa.komposed.middleware.Middleware
 import io.github.atwa.komposed.middleware.apply
 import io.github.atwa.komposed.reducer.Reducer
 import io.github.atwa.komposed.reducer.ReduceType
+import io.github.atwa.komposed.subscription.Subscription
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,9 @@ import kotlin.reflect.KClass
 /** Observable container for state [S]. Dispatched actions pass through the middleware chain
  *  before being handled by the matching [Reducer]. Effects emitted by reducers are routed
  *  to registered [EffectHandler]s, which dispatch zero, one, or many actions back into the store.
+ *
+ *  Subscriptions watch derived values of [S]; when a selector's output changes after a state
+ *  update the produced action is dispatched through the full pipeline automatically.
  *
  *  Threading is enforced internally — client code passes a plain scope with no dispatcher override:
  *  - Action routing and state updates run on [Dispatchers.Main.immediate]
@@ -37,6 +41,7 @@ private class StoreImpl<S>(
     override val reducers: Map<KClass<*>, Reducer<S, Any>>,
     private val effectHandlers: Map<KClass<*>, EffectHandler<Effect, Any>>,
     private val middlewares: List<Middleware<S, Any>>,
+    private val subscriptions: List<Subscription<S, *>>,
     scope: CoroutineScope,
     mainDispatcher: CoroutineDispatcher,
     ioDispatcher: CoroutineDispatcher,
@@ -56,13 +61,30 @@ private class StoreImpl<S>(
 
     private fun applyReducers(action: Any) {
         val reducer = reducers.entries.firstOrNull { it.key.isInstance(action) }?.value ?: return
-        when (val result = reducer.invoke(_state.value, action)) {
-            is ReduceType.Reduce -> _state.update { result.state }
+        val previousState = _state.value
+        when (val result = reducer.invoke(previousState, action)) {
+            is ReduceType.Reduce -> {
+                _state.update { result.state }
+                notifySubscriptions(previousState, result.state)
+            }
             is ReduceType.ReduceWithEffect -> {
                 _state.update { result.state }
+                notifySubscriptions(previousState, result.state)
                 ioScope.launch { handleEffect(result.effect) }
             }
             is ReduceType.SideEffect -> ioScope.launch { handleEffect(result.effect) }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun notifySubscriptions(previousState: S, newState: S) {
+        for (subscription in subscriptions) {
+            val sub = subscription as Subscription<S, Any?>
+            val previousValue = sub.selector(previousState)
+            val newValue = sub.selector(newState)
+            if (previousValue != newValue) {
+                dispatch(sub.action(newValue))
+            }
         }
     }
 
@@ -80,16 +102,18 @@ private class StoreImpl<S>(
     }
 }
 
-/** Creates a [Store] wired with the given [reducers], [effectHandlers], [middlewares], and coroutine [scope].
+/** Creates a [Store] wired with the given [reducers], [effectHandlers], [middlewares],
+ *  [subscriptions], and coroutine [scope].
  *
- * Pass a plain [scope] (e.g. `viewModelScope`) with no dispatcher override — [mainDispatcher] and
- * [ioDispatcher] are applied internally. Override them only in tests via [io.github.atwa.komposed.testing.TestStore]. */
+ *  Pass a plain [scope] (e.g. `viewModelScope`) with no dispatcher override — [mainDispatcher] and
+ *  [ioDispatcher] are applied internally. Override them only in tests via [io.github.atwa.komposed.testing.TestStore]. */
 fun <S> createStore(
     initialValue: S,
     scope: CoroutineScope,
     middlewares: List<Middleware<S, Any>> = emptyList(),
     reducers: Map<KClass<*>, Reducer<S, Any>>,
     effectHandlers: Map<KClass<*>, EffectHandler<Effect, Any>> = emptyMap(),
+    subscriptions: List<Subscription<S, *>> = emptyList(),
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate,
     ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ): Store<S> = StoreImpl(
@@ -97,6 +121,7 @@ fun <S> createStore(
     reducers = reducers,
     effectHandlers = effectHandlers,
     middlewares = middlewares,
+    subscriptions = subscriptions,
     scope = scope,
     mainDispatcher = mainDispatcher,
     ioDispatcher = ioDispatcher,

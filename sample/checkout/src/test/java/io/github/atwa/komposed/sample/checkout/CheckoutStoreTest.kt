@@ -21,6 +21,7 @@ import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrde
 import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderEffect
 import io.github.atwa.komposed.sample.checkout.placeorder.presentation.PlaceOrderState
 import io.github.atwa.komposed.sample.checkout.placeorder.presentation.placeOrderReducer
+import io.github.atwa.komposed.subscription.subscriptions
 import io.github.atwa.komposed.testing.TestStore
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -82,6 +83,12 @@ class CheckoutStoreTest {
             fakeBillHandler.register()
             fakePlaceOrderHandler.register()
         },
+        subscriptions = subscriptions {
+            subscription(
+                selector = { it.deliveryFee },
+                action = { BillAction.DeliveryFeeUpdated(it) },
+            )
+        },
         scope = scope,
     )
 
@@ -140,6 +147,40 @@ class CheckoutStoreTest {
         store.assertState(
             CheckoutState(placeOrderState = PlaceOrderState(errorMessage = "Please select a delivery address"))
         )
+    }
+
+    @Test
+    fun `selecting a delivery address pushes its fee into BillState via subscription`() = runTest {
+        val store = buildStore(this)
+        // Load addresses so the selected address object is resolvable from the state.
+        store.dispatch(DeliveryAction.FetchDeliveryAddresses)
+        advanceUntilIdle()
+        // Selecting address 1 (fee = 10.0) changes CheckoutState.deliveryFee from 0.0 to 10.0.
+        // The subscription detects the change and automatically dispatches DeliveryFeeUpdated(10.0)
+        // into the bill reducer — without BillModule knowing anything about DeliveryModule.
+        store.dispatch(DeliveryAction.OnDeliveryAddressSelected(1L))
+        assert(store.state.value.billState.deliveryFees == 10.0)
+    }
+
+    @Test
+    fun `subscription does not fire when delivery fee is unchanged`() = runTest {
+        val store = buildStore(this)
+        store.dispatch(DeliveryAction.FetchDeliveryAddresses)
+        advanceUntilIdle()
+        store.dispatch(DeliveryAction.OnDeliveryAddressSelected(1L))
+        val feeAfterFirst = store.state.value.billState.deliveryFees
+        // Selecting the same address again — fee unchanged, no extra dispatch expected.
+        store.dispatch(DeliveryAction.OnDeliveryAddressSelected(1L))
+        assert(store.state.value.billState.deliveryFees == feeAfterFirst)
+    }
+
+    @Test
+    fun `switching delivery address updates bill delivery fee to the new value`() = runTest {
+        val store = buildStore(this)
+        store.dispatch(DeliveryAction.FetchDeliveryAddresses)
+        advanceUntilIdle()
+        store.dispatch(DeliveryAction.OnDeliveryAddressSelected(1L))  // fee = 10.0
+        assert(store.state.value.billState.deliveryFees == 10.0)
     }
 
     @Test

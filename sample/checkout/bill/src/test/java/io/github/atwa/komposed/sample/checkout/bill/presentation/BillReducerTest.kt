@@ -32,4 +32,18 @@ class BillReducerTest {
             .assertState(BillState(isLoading = false))
             .assertNoEffect()
     }
+
+    @Test
+    fun `DeliveryFeeUpdated stores the new fee with no effect`() {
+        billReducer.given(BillState(), BillAction.DeliveryFeeUpdated(12.5))
+            .assertState(BillState(deliveryFees = 12.5))
+            .assertNoEffect()
+    }
+
+    @Test
+    fun `DeliveryFeeUpdated overwrites a previously set delivery fee`() {
+        billReducer.given(BillState(deliveryFees = 5.0), BillAction.DeliveryFeeUpdated(18.0))
+            .assertState(BillState(deliveryFees = 18.0))
+            .assertNoEffect()
+    }
 }

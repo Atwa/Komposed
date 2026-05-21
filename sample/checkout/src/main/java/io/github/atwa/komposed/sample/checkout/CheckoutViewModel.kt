@@ -8,6 +8,7 @@ import io.github.atwa.komposed.createStore
 import io.github.atwa.komposed.reducer.effectHandlers
 import io.github.atwa.komposed.middleware.navigationMiddleware
 import io.github.atwa.komposed.reducer.reducers
+import io.github.atwa.komposed.subscription.subscriptions
 import io.github.atwa.komposed.sample.checkout.CheckoutState.Companion.billLens
 import io.github.atwa.komposed.sample.checkout.CheckoutState.Companion.deliveryLens
 import io.github.atwa.komposed.sample.checkout.CheckoutState.Companion.placeOrderLens
@@ -36,12 +37,12 @@ class CheckoutViewModel @Inject constructor(
     val store by lazy {
         createStore(
             initialValue = CheckoutState(),
+            scope = viewModelScope,
             middlewares = listOf(
                 loggingMiddleware(),
                 analyticsMiddleware(),
                 navigationMiddleware(navigator),
             ),
-            scope = viewModelScope,
             reducers = reducers {
                 deliveryReducer.scoped(deliveryLens)
                 billReducer.scoped(billLens)
@@ -51,6 +52,15 @@ class CheckoutViewModel @Inject constructor(
                 deliveryEffectHandler.register()
                 billEffectHandler.register()
                 placeOrderEffectHandler.register()
+            },
+            // When the selected delivery address changes its fee, push it into BillReducer.
+            // BillModule has no dependency on DeliveryModule — the wiring lives here at the
+            // composition boundary where both modules are visible.
+            subscriptions = subscriptions {
+                subscription(
+                    selector = { it.deliveryFee },
+                    action = { BillAction.DeliveryFeeUpdated(it) },
+                )
             },
         )
     }
