@@ -27,28 +27,6 @@ class CheckoutStateTest {
     }
 
     @Test
-    fun `deliveryFee returns selected address fee`() {
-        val state = CheckoutState(
-            deliveryState = DeliveryState(addresses = listOf(address), selectedAddressId = 1L)
-        )
-        assert(state.deliveryFee == 10.0)
-    }
-
-    @Test
-    fun `deliveryFee is 0 when no address selected`() {
-        assert(CheckoutState().deliveryFee == 0.0)
-    }
-
-    @Test
-    fun `orderGrandTotal sums orderTotal, serviceFees and deliveryFee`() {
-        val state = CheckoutState(
-            billState = BillState(orderTotal = 100.0, serviceFees = 5.0),
-            deliveryState = DeliveryState(addresses = listOf(address), selectedAddressId = 1L),
-        )
-        assert(state.orderGrandTotal == 115.0)
-    }
-
-    @Test
     fun `toCheckoutParams maps all state fields correctly`() {
         val state = CheckoutState(
             deliveryState = DeliveryState(
@@ -56,7 +34,7 @@ class CheckoutStateTest {
                 selectedAddressId = 1L,
                 deliveryNote = "Ring bell",
             ),
-            billState = BillState(serviceFees = 5.0, orderTotal = 100.0),
+            billState = BillState(serviceFees = 5.0, orderTotal = 100.0, deliveryFees = 10.0),
         )
         val params = state.toCheckoutParams()
         assert(params.addressId == 1L)

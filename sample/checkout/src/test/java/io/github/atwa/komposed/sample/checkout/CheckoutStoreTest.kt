@@ -85,7 +85,7 @@ class CheckoutStoreTest {
         },
         subscriptions = subscriptions {
             subscription(
-                selector = { it.deliveryFee },
+                selector = { it.deliveryState.selectedAddress?.deliveryFee ?: 0.0 },
                 action = { BillAction.DeliveryFeeUpdated(it) },
             )
         },

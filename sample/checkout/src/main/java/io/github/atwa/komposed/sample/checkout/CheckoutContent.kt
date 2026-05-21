@@ -51,19 +51,19 @@ fun CheckoutContent(
                     DeliverySection(state.deliveryState, dispatch)
                     BillSection(
                         state = state.billState,
-                        deliveryFees = state.deliveryFee,
-                        orderGrandTotal = state.orderGrandTotal,
+                        deliveryFees = state.billState.deliveryFees,
+                        orderGrandTotal = state.billState.grandTotal,
                     )
                 }
             }
 
             AnimatedVisibility(
-                visible = state.error != null,
+                visible = state.deliveryState.error != null,
                 enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
                 exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
                 modifier = Modifier.align(Alignment.BottomCenter)
             ) {
-                CheckoutErrorScreen(message = state.error ?: "")
+                CheckoutErrorScreen(message = state.deliveryState.error ?: "")
             }
         }
     }

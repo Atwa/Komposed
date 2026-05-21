@@ -46,4 +46,5 @@ class BillReducerTest {
             .assertState(BillState(deliveryFees = 18.0))
             .assertNoEffect()
     }
+
 }

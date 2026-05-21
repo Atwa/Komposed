@@ -12,16 +12,13 @@ data class CheckoutState(
     val placeOrderState: PlaceOrderState = PlaceOrderState(),
 ) {
     val isLoading: Boolean get() = deliveryState.isLoading || billState.isLoading
-    val deliveryFee: Double get() = deliveryState.selectedAddress?.deliveryFee ?: 0.0
-    val error: String? get() = deliveryState.error
-    val orderGrandTotal: Double get() = billState.orderTotal + billState.serviceFees + deliveryFee
 
     fun toCheckoutParams() = CheckoutParams(
         addressId = deliveryState.selectedAddressId,
         deliveryNote = deliveryState.deliveryNote,
         addressLine = deliveryState.selectedAddress?.addressLine ?: "",
         city = deliveryState.selectedAddress?.city ?: "",
-        deliveryFees = deliveryFee,
+        deliveryFees = billState.deliveryFees,
         serviceFees = billState.serviceFees,
         orderTotal = billState.orderTotal,
     )

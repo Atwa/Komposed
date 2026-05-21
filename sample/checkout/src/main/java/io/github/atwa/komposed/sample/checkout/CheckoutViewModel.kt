@@ -53,12 +53,9 @@ class CheckoutViewModel @Inject constructor(
                 billEffectHandler.register()
                 placeOrderEffectHandler.register()
             },
-            // When the selected delivery address changes its fee, push it into BillReducer.
-            // BillModule has no dependency on DeliveryModule — the wiring lives here at the
-            // composition boundary where both modules are visible.
             subscriptions = subscriptions {
                 subscription(
-                    selector = { it.deliveryFee },
+                    selector = { it.deliveryState.selectedAddress?.deliveryFee ?: 0.0 },
                     action = { BillAction.DeliveryFeeUpdated(it) },
                 )
             },

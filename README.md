@@ -153,17 +153,17 @@ Every layer — state transitions, effect dispatch, action ordering, and navigat
 Add the dependencies to your module's `build.gradle.kts`:
 
 ```kotlin
-implementation("io.github.atwa:komposed:1.0.1")
+implementation("io.github.atwa:komposed:1.1.0")
 
 // Testing utilities — add to the test source set only
-testImplementation("io.github.atwa:komposed-testing:1.0.1")
+testImplementation("io.github.atwa:komposed-testing:1.1.0")
 ```
 
 Or with a version catalog (`gradle/libs.versions.toml`):
 
 ```toml
 [versions]
-komposed = "1.0.1"
+komposed = "1.1.0"
 
 [libraries]
 komposed         = { group = "io.github.atwa", name = "komposed",         version.ref = "komposed" }
