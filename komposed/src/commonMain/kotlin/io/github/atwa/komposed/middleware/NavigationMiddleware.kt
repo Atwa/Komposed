@@ -1,6 +1,5 @@
 package io.github.atwa.komposed.middleware
 
-import android.util.Log
 import io.github.atwa.komposed.effect.NavigationEffect
 import io.github.atwa.komposed.navigation.Navigator
 
@@ -13,7 +12,6 @@ import io.github.atwa.komposed.navigation.Navigator
  */
 fun <S> navigationMiddleware(navigator: Navigator) = createMiddleware<S> { _, action, next ->
     if (action is NavigationEffect) {
-        Log.d("Navigator", action.toString())
         action.block(navigator)
     } else {
         next(action)

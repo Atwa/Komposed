@@ -1,8 +1,24 @@
 plugins {
+    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     id("maven-publish")
     id("signing")
+}
+
+kotlin {
+    jvmToolchain(11)
+
+    androidTarget()
+    jvm()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinx.coroutines.core)
+        }
+    }
 }
 
 android {
@@ -10,45 +26,9 @@ android {
     compileSdk {
         version = release(36)
     }
-
     defaultConfig {
         minSdk = 24
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
     }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
-}
-
-dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }
 
 // ─── Publishing ────────────────────────────────────────────────────────────────
@@ -57,44 +37,39 @@ afterEvaluate {
     val versionName = project.findProperty("VERSION_NAME") as? String ?: "1.0.0"
 
     publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
+        publications.withType<MavenPublication>().configureEach {
+            groupId = "io.github.atwa"
+            version = versionName
 
-                groupId    = "io.github.atwa"
-                artifactId = "komposed"
-                version    = versionName
+            pom {
+                name.set("Komposed")
+                description.set(
+                    "Unidirectional state management for Kotlin Multiplatform. " +
+                    "Pure reducers, typed effects, lens-based composition, extensible middleware, " +
+                    "and a fluent testing DSL. Inspired by The Composable Architecture (TCA)."
+                )
+                url.set("https://github.com/atwa/komposed")
+                inceptionYear.set("2024")
 
-                pom {
-                    name.set("Komposed")
-                    description.set(
-                        "Unidirectional state management for Android, built in Kotlin. " +
-                        "Pure reducers, typed effects, lens-based composition, extensible middleware, " +
-                        "and a fluent testing DSL. Inspired by The Composable Architecture (TCA)."
-                    )
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licenses/MIT")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("atwa")
+                        name.set("Ahmed Atwa")
+                        email.set("a.atwaa94@gmail.com")
+                        url.set("https://github.com/atwa")
+                    }
+                }
+                scm {
                     url.set("https://github.com/atwa/komposed")
-                    inceptionYear.set("2024")
-
-                    licenses {
-                        license {
-                            name.set("MIT License")
-                            url.set("https://opensource.org/licenses/MIT")
-                            distribution.set("repo")
-                        }
-                    }
-                    developers {
-                        developer {
-                            id.set("atwa")
-                            name.set("Ahmed Atwa")
-                            email.set("a.atwaa94@gmail.com")
-                            url.set("https://github.com/atwa")
-                        }
-                    }
-                    scm {
-                        url.set("https://github.com/atwa/komposed")
-                        connection.set("scm:git:git://github.com/atwa/komposed.git")
-                        developerConnection.set("scm:git:ssh://git@github.com/atwa/komposed.git")
-                    }
+                    connection.set("scm:git:git://github.com/atwa/komposed.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/atwa/komposed.git")
                 }
             }
         }
@@ -114,7 +89,7 @@ afterEvaluate {
             ?: System.getenv("GPG_KEY_PASSWORD")
         if (signingKey != null) {
             useInMemoryPgpKeys(signingKey, signingPassword)
-            sign(publishing.publications["release"])
+            sign(publishing.publications)
         }
     }
 }

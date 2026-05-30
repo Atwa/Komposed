@@ -27,9 +27,9 @@ import kotlin.reflect.KClass
  *  update the produced action is dispatched through the full pipeline automatically.
  *
  *  Threading is enforced internally — client code passes a plain scope with no dispatcher override:
- *  - Action routing and state updates run on [Dispatchers.Main.immediate]
- *  - Effect handler bodies run on [Dispatchers.IO]
- *  - Actions dispatched back from handlers are posted to [Dispatchers.Main.immediate] */
+ *  - Action routing and state updates run on [Dispatchers.Main]
+ *  - Effect handler bodies run on [Dispatchers.IO] (JVM/Android) or [Dispatchers.Default] (iOS)
+ *  - Actions dispatched back from handlers are posted to [Dispatchers.Main] */
 interface Store<S> {
     val state: StateFlow<S>
     val reducers: Map<KClass<*>, Reducer<S, Any>>
@@ -114,8 +114,8 @@ fun <S> createStore(
     reducers: Map<KClass<*>, Reducer<S, Any>>,
     effectHandlers: Map<KClass<*>, EffectHandler<Effect, Any>> = emptyMap(),
     subscriptions: List<Subscription<S, *>> = emptyList(),
-    mainDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate,
-    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    ioDispatcher: CoroutineDispatcher = defaultIoDispatcher,
 ): Store<S> = StoreImpl(
     initialValue = initialValue,
     reducers = reducers,
