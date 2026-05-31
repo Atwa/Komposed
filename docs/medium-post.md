@@ -476,7 +476,7 @@ implementation("io.github.atwa:komposed:1.1.0")
 testImplementation("io.github.atwa:komposed-testing:1.1.0")
 ```
 
-Source, documentation, and the full sample checkout app:
+Source, documentation, and the full app checkout app:
 **[github.com/atwa/komposed](https://github.com/atwa/komposed)**
 
 ---

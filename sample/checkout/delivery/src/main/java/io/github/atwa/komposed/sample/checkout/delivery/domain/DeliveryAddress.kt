@@ -1,9 +1,0 @@
-package io.github.atwa.komposed.sample.checkout.delivery.domain
-
-data class DeliveryAddress(
-    val id: Long,
-    val addressLine: String,
-    val city: String,
-    val isDefault: Boolean = false,
-    val deliveryFee: Double = 0.0
-)

@@ -1,8 +1,10 @@
 [versions]
 agp = "8.13.2"
-komposed = "1.1.0"
-komposedTesting = "1.1.0"
-kotlin = "2.0.21"
+komposed = "2.0.0"
+komposedTesting = "2.0.0"
+kotlin = "2.2.0"
+koin = "4.1.0"
+composeMultiplatform = "1.8.0"
 coroutines = "1.9.0"
 coreKtx = "1.18.0"
 junit = "4.13.2"
@@ -17,8 +19,9 @@ runtime = "1.11.1"
 hilt = "2.51.1"
 ksp = "2.0.21-1.0.25"
 navigationCompose = "2.9.8"
+navigationComposeKmp = "2.9.2"
 hilt-navigation-compose = "1.3.0"
-kotlinXSerilaizationPlugin = "2.0.21"
+kotlinXSerilaizationPlugin = "2.2.0"
 serialization = "1.7.3"
 navigationCommonKtx = "2.9.8"
 navigationRuntimeKtx = "2.9.8"
@@ -48,12 +51,19 @@ androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-navigation-compose-kmp = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigationComposeKmp" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 androidx-navigation-common-ktx = { group = "androidx.navigation", name = "navigation-common-ktx", version.ref = "navigationCommonKtx" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-core-viewmodel = { group = "io.insert-koin", name = "koin-core-viewmodel", version.ref = "koin" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -64,3 +74,4 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinXSerilaizationPlugin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }

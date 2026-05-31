@@ -21,13 +21,13 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "komposed"
-include(":sample")
-include(":sample:core:navigation")
-include(":sample:core:middleware")
-include(":sample:checkout")
-include(":sample:checkout:delivery")
-include(":sample:checkout:bill")
-include(":sample:checkout:placeOrder")
-include(":sample:orderDetails")
+include(":app")
+include(":app:core:navigation")
+include(":app:core:middleware")
+include(":app:checkout")
+include(":app:checkout:delivery")
+include(":app:checkout:bill")
+include(":app:checkout:placeOrder")
+include(":app:orderDetails")
 include(":komposed")
 include(":komposed-testing")

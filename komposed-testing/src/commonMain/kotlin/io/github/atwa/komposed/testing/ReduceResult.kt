@@ -91,16 +91,3 @@ fun <S> ReduceResult<S>.assertNavigationEffect(
     return this
 }
 
-/**
- * Returns a list of [PropertyChange] entries for every field that differs between
- * [previousState] and [nextState] — useful for debugging assertion failures.
- */
-fun <S> ReduceResult<S>.stateDiff(): List<PropertyChange> =
-    (previousState as Any).javaClass.declaredFields
-        .filter { !it.isSynthetic }
-        .mapNotNull { field ->
-            field.isAccessible = true
-            val before = field.get(previousState)
-            val after = field.get(nextState)
-            if (before != after) PropertyChange(field.name, before, after) else null
-        }

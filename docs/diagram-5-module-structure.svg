@@ -20,11 +20,11 @@
   <text x="185" y="150" text-anchor="middle" fill="#93c5fd" font-size="13" font-weight="700">:komposed-testing</text>
   <text x="185" y="168" text-anchor="middle" fill="#3b82f6" font-size="10">TestStore · ReduceResult · TestNavigator · SpyMiddleware</text>
 
-  <text x="535" y="22" text-anchor="middle" fill="#8b949e" font-size="11" font-weight="600" letter-spacing="1">SAMPLE APP</text>
+  <text x="535" y="22" text-anchor="middle" fill="#8b949e" font-size="11" font-weight="600" letter-spacing="1">app APP</text>
 
   <rect x="380" y="34" width="310" height="50" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="2"/>
-  <text x="535" y="58" text-anchor="middle" fill="#a5b4fc" font-size="13" font-weight="700">:sample</text>
-  <text x="535" y="73" text-anchor="middle" fill="#6366f1" font-size="10">App entry · MainActivity · KomposedApp · AppScreens</text>
+  <text x="535" y="58" text-anchor="middle" fill="#a5b4fc" font-size="13" font-weight="700">:app</text>
+  <text x="535" y="73" text-anchor="middle" fill="#6366f1" font-size="10">App entry · MainActivity · komposedApp · AppScreens</text>
 
   <line x1="535" y1="84" x2="535" y2="108" stroke="#374151" stroke-width="1.2"/>
   <line x1="430" y1="108" x2="640" y2="108" stroke="#374151" stroke-width="1.2"/>

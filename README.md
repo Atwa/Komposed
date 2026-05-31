@@ -1,14 +1,15 @@
 # Komposed
 
-> Unidirectional state management for Android, built in Kotlin
+> Unidirectional state management for Kotlin Multiplatform
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.atwa/komposed?color=4ade80&label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.atwa/komposed)
 [![Build](https://github.com/atwa/komposed/actions/workflows/publish.yml/badge.svg)](https://github.com/atwa/komposed/actions/workflows/publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-818cf8.svg)](https://opensource.org/licenses/MIT)
+[![KMP](https://img.shields.io/badge/Kotlin%20Multiplatform-Android%20%7C%20iOS-7f52ff?logo=kotlin&logoColor=white)](https://kotlinlang.org/docs/multiplatform.html)
 [![minSdk](https://img.shields.io/badge/minSdk-24-2dd4bf)](https://developer.android.com/studio/releases/platforms)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0-fb923c?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.2-fb923c?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 
-Komposed is a lightweight Kotlin library for predictable, testable state management on Android. State transitions are pure functions. Side effects are typed values routed to registered handlers. Everything composes — features, reducers, and tests alike.
+Komposed is a lightweight Kotlin Multiplatform library for predictable, testable state management on Android and iOS. State transitions are pure functions. Side effects are typed values routed to registered handlers. Everything composes — features, reducers, and tests alike.
 
 Inspired by the core ideas of [The Composable Architecture (TCA)](https://github.com/pointfreeco/swift-composable-architecture) by Point-Free, Komposed adapts its fundamental building blocks — reducers, effects, lenses, and middleware — to idiomatic Kotlin and Jetpack Compose, without requiring any prior TCA knowledge.
 
@@ -32,7 +33,7 @@ Effects are typed sealed values produced by reducers. The store routes each effe
 ![Effect Types and Lifecycle](docs/diagram-4-effect-types.svg)
 
 ### 4 — Module Structure
-Core library modules have zero Android feature dependencies; each sample feature is its own Gradle module following the same internal layering.
+Core library modules have zero Android feature dependencies; each app feature is its own Gradle module following the same internal layering.
 
 ![Module Structure](docs/diagram-5-module-structure.svg)
 
@@ -153,17 +154,17 @@ Every layer — state transitions, effect dispatch, action ordering, and navigat
 Add the dependencies to your module's `build.gradle.kts`:
 
 ```kotlin
-implementation("io.github.atwa:komposed:1.1.0")
+implementation("io.github.atwa:komposed:2.0.0")
 
 // Testing utilities — add to the test source set only
-testImplementation("io.github.atwa:komposed-testing:1.1.0")
+testImplementation("io.github.atwa:komposed-testing:2.0.0")
 ```
 
 Or with a version catalog (`gradle/libs.versions.toml`):
 
 ```toml
 [versions]
-komposed = "1.1.0"
+komposed = "2.0.0"
 
 [libraries]
 komposed         = { group = "io.github.atwa", name = "komposed",         version.ref = "komposed" }
@@ -175,7 +176,7 @@ implementation(libs.komposed)
 testImplementation(libs.komposed.testing)
 ```
 
-**Requirements:** minSdk 24 · Kotlin 2.0 · Java 11 · `kotlinx-coroutines-core` (transitive)
+**Requirements:** minSdk 24 · iOS 17.0+ · Kotlin 2.2 · Java 17 · `kotlinx-coroutines-core` (transitive)
 
 ---
 
@@ -1053,7 +1054,7 @@ fun `GoBack calls navigateUp once`() {
 komposed/               Core library — Store, Reducer, Effect, EffectHandler, Middleware, Lens, Navigator
 komposed-testing/       Test helpers — depends only on :komposed
 
-sample/
+app/
 ├── (app)               Entry point · AppNavHost · Hilt setup
 ├── checkout/           Composed checkout screen · CheckoutState · CheckoutViewModel
 │   ├── delivery/       DeliveryReducer · DeliveryEffect · DeliveryEffectHandlerImpl
