@@ -36,6 +36,10 @@ android {
 
 // ─── Publishing ────────────────────────────────────────────────────────────────
 
+val javadocJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("javadoc")
+}
+
 afterEvaluate {
     val versionName = project.findProperty("VERSION_NAME") as? String ?: "1.0.0"
 
@@ -43,6 +47,10 @@ afterEvaluate {
         publications.withType<MavenPublication>().configureEach {
             groupId = "io.github.atwa"
             version = versionName
+
+            if (name == "jvm") {
+                artifact(javadocJar)
+            }
 
             pom {
                 name.set("Komposed Testing")
