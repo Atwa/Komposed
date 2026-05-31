@@ -8,7 +8,7 @@ on:
 jobs:
   publish:
     name: Publish komposed + komposed-testing
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
@@ -30,8 +30,8 @@ jobs:
       - name: Publish both modules to local staging directory
         run: |
           ./gradlew \
-            :komposed:publishReleasePublicationToMavenLocalRepository \
-            :komposed-testing:publishReleasePublicationToMavenLocalRepository
+            :komposed:publishAllPublicationsToMavenLocalRepository \
+            :komposed-testing:publishAllPublicationsToMavenLocalRepository
         env:
           VERSION_NAME:     ${{ steps.version.outputs.VERSION }}
           GPG_PRIVATE_KEY:  ${{ secrets.GPG_PRIVATE_KEY }}
