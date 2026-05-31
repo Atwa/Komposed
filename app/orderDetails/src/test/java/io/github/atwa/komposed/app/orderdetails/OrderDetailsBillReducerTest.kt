@@ -1,6 +1,6 @@
 package io.github.atwa.komposed.app.orderdetails
 
-import io.github.atwa.komposed.app.checkout.bill.presentation.BillState
+import io.github.atwa.komposed.app.checkout.bill.BillState
 import io.github.atwa.komposed.app.orderdetails.bill.OrderDetailsBillAction
 import io.github.atwa.komposed.app.orderdetails.bill.orderDetailsBillReducer
 import io.github.atwa.komposed.testing.assertNoEffect

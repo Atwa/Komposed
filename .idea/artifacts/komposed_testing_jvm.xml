@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="komposed-testing-jvm">
+    <output-path>$PROJECT_DIR$/komposed-testing/build/libs</output-path>
+    <root id="archive" name="komposed-testing-jvm.jar">
+      <element id="module-output" name="komposed.komposed-testing.jvmMain" />
+    </root>
+  </artifact>
+</component>

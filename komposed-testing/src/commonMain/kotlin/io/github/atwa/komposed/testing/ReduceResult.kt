@@ -2,9 +2,8 @@ package io.github.atwa.komposed.testing
 
 import io.github.atwa.komposed.effect.Effect
 import io.github.atwa.komposed.effect.NavigationEffect
-import io.github.atwa.komposed.reducer.Reducer
 import io.github.atwa.komposed.reducer.ReduceType
-import io.github.atwa.komposed.testing.stateDiff
+import io.github.atwa.komposed.reducer.Reducer
 
 /** A field-level difference between [previousState] and [nextState], used by [ReduceResult.stateDiff]. */
 data class PropertyChange(val name: String, val before: Any?, val after: Any?)

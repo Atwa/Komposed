@@ -16,10 +16,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import io.github.atwa.komposed.app.checkout.bill.presentation.BillSection
-import io.github.atwa.komposed.app.checkout.delivery.presentation.DeliverySection
-import io.github.atwa.komposed.app.checkout.placeorder.presentation.PlaceOrderAction
-import io.github.atwa.komposed.app.checkout.placeorder.presentation.PlaceOrderSection
+import io.github.atwa.komposed.app.checkout.bill.BillSection
+import io.github.atwa.komposed.app.checkout.delivery.DeliverySection
+import io.github.atwa.komposed.app.checkout.placeorder.PlaceOrderAction
+import io.github.atwa.komposed.app.checkout.placeorder.PlaceOrderSection
 
 @Composable
 fun CheckoutContent(

@@ -10,17 +10,17 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/app/checkout" />
+            <option value="$PROJECT_DIR$/app/checkout/bill" />
+            <option value="$PROJECT_DIR$/app/checkout/delivery" />
+            <option value="$PROJECT_DIR$/app/checkout/placeOrder" />
+            <option value="$PROJECT_DIR$/app/core" />
+            <option value="$PROJECT_DIR$/app/core/middleware" />
+            <option value="$PROJECT_DIR$/app/core/navigation" />
+            <option value="$PROJECT_DIR$/app/orderDetails" />
             <option value="$PROJECT_DIR$/komposed" />
             <option value="$PROJECT_DIR$/komposed-testing" />
-            <option value="$PROJECT_DIR$/sample" />
-            <option value="$PROJECT_DIR$/sample/checkout" />
-            <option value="$PROJECT_DIR$/sample/checkout/bill" />
-            <option value="$PROJECT_DIR$/sample/checkout/delivery" />
-            <option value="$PROJECT_DIR$/sample/checkout/placeOrder" />
-            <option value="$PROJECT_DIR$/sample/core" />
-            <option value="$PROJECT_DIR$/sample/core/middleware" />
-            <option value="$PROJECT_DIR$/sample/core/navigation" />
-            <option value="$PROJECT_DIR$/sample/orderDetails" />
           </set>
         </option>
       </GradleProjectSettings>

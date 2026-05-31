@@ -1,12 +1,10 @@
 package io.github.atwa.komposed.app.orderdetails
 
-import io.github.atwa.komposed.reducer.reducers
-import io.github.atwa.komposed.app.checkout.bill.presentation.BillState
+import io.github.atwa.komposed.app.checkout.bill.BillState
 import io.github.atwa.komposed.app.orderdetails.OrderDetailsState.Companion.billLens
 import io.github.atwa.komposed.app.orderdetails.OrderDetailsState.Companion.orderInfoLens
 import io.github.atwa.komposed.app.orderdetails.bill.orderDetailsBillReducer
-import io.github.atwa.komposed.app.orderdetails.orderinfo.OrderInfoState
-import io.github.atwa.komposed.app.orderdetails.orderinfo.orderInfoReducer
+import io.github.atwa.komposed.reducer.reducers
 import io.github.atwa.komposed.testing.TestStore
 import kotlinx.coroutines.test.runTest
 import org.junit.Test

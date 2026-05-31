@@ -1055,24 +1055,21 @@ komposed/               Core library — Store, Reducer, Effect, EffectHandler, 
 komposed-testing/       Test helpers — depends only on :komposed
 
 app/
-├── (app)               Entry point · AppNavHost · Hilt setup
+├── (app)               Entry point · AppNavHost · Koin setup
 ├── checkout/           Composed checkout screen · CheckoutState · CheckoutViewModel
-│   ├── delivery/       DeliveryReducer · DeliveryEffect · DeliveryEffectHandlerImpl
-│   ├── bill/           BillReducer · BillEffect · BillEffectHandlerImpl
-│   └── placeOrder/     PlaceOrderReducer · PlaceOrderEffect · PlaceOrderEffectHandlerImpl · CheckoutParams
-├── orderDetails/       Order confirmation screen
+│   ├── delivery/       DeliveryState · DeliveryAction · DeliveryEffect · DeliveryReducer
+│   │                   DeliveryEffectHandlerImpl · DeliveryRepository · DeliveryAddress · DeliveryKoinModule
+│   ├── bill/           BillState · BillAction · BillEffect · BillReducer
+│   │                   BillEffectHandlerImpl · BillSummaryRepository · BillSummary · BillKoinModule
+│   └── placeOrder/     PlaceOrderState · PlaceOrderAction · PlaceOrderEffect · PlaceOrderReducer
+│                       PlaceOrderEffectHandlerImpl · CheckoutRepository · CheckoutParams · PlaceOrderKoinModule
+├── orderDetails/       OrderDetailsState · OrderDetailsBillReducer · OrderInfoReducer · OrderInfoScreen
 └── core/
-    ├── navigation/     Route definitions · NavigatorImpl · Hilt binding
+    ├── navigation/     Route definitions · NavigatorImpl · Koin binding
     └── middleware/     loggingMiddleware · analyticsMiddleware
 ```
 
-Each feature sub-module follows the same internal layering:
-
-```
-presentation/   Action sealed interface · State data class · Effect sealed interface · Reducer · Composable
-domain/         Plain data models (no Android, no framework)
-data/           Repository interface + impl · EffectHandlerImpl · Hilt @Binds module
-```
+All files within each feature module are flat in a single package — there are no `presentation/`, `domain/`, or `data/` subdirectories. State, actions, effects, reducers, effect handlers, repositories, and UI composables all live at the module's root package.
 
 ---
 

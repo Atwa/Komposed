@@ -5,8 +5,8 @@ import io.github.atwa.komposed.effect.EffectHandler
 import io.github.atwa.komposed.effect.NavigationEffect
 import io.github.atwa.komposed.middleware.Middleware
 import io.github.atwa.komposed.middleware.apply
-import io.github.atwa.komposed.reducer.Reducer
 import io.github.atwa.komposed.reducer.ReduceType
+import io.github.atwa.komposed.reducer.Reducer
 import io.github.atwa.komposed.subscription.Subscription
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope

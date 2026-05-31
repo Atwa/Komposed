@@ -1,8 +1,5 @@
 package io.github.atwa.komposed.app.orderdetails
 
-import io.github.atwa.komposed.app.orderdetails.orderinfo.OrderInfoAction
-import io.github.atwa.komposed.app.orderdetails.orderinfo.OrderInfoState
-import io.github.atwa.komposed.app.orderdetails.orderinfo.orderInfoReducer
 import io.github.atwa.komposed.testing.assertNoEffect
 import io.github.atwa.komposed.testing.assertNoStateChange
 import io.github.atwa.komposed.testing.given

@@ -9,11 +9,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import io.github.atwa.komposed.app.checkout.bill.BillSection
+import io.github.atwa.komposed.app.checkout.bill.BillState
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import io.github.atwa.komposed.app.checkout.bill.presentation.BillSection
-import io.github.atwa.komposed.app.checkout.bill.presentation.BillState
-import io.github.atwa.komposed.app.orderdetails.orderinfo.OrderInfoScreen
-import io.github.atwa.komposed.app.orderdetails.orderinfo.OrderInfoState
 
 @Composable
 fun OrderDetailsContent(state: OrderDetailsState, dispatch: (Any) -> Unit) {

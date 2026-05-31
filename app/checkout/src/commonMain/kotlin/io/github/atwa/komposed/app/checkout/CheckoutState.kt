@@ -1,10 +1,10 @@
 package io.github.atwa.komposed.app.checkout
 
+import io.github.atwa.komposed.app.checkout.bill.BillState
+import io.github.atwa.komposed.app.checkout.delivery.DeliveryState
+import io.github.atwa.komposed.app.checkout.placeorder.CheckoutParams
+import io.github.atwa.komposed.app.checkout.placeorder.PlaceOrderState
 import io.github.atwa.komposed.lens
-import io.github.atwa.komposed.app.checkout.bill.presentation.BillState
-import io.github.atwa.komposed.app.checkout.delivery.presentation.DeliveryState
-import io.github.atwa.komposed.app.checkout.placeorder.presentation.CheckoutParams
-import io.github.atwa.komposed.app.checkout.placeorder.presentation.PlaceOrderState
 
 data class CheckoutState(
     val deliveryState: DeliveryState = DeliveryState(),

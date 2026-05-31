@@ -1,8 +1,8 @@
 package io.github.atwa.komposed.app.checkout
 
-import io.github.atwa.komposed.app.checkout.bill.presentation.BillState
-import io.github.atwa.komposed.app.checkout.delivery.domain.DeliveryAddress
-import io.github.atwa.komposed.app.checkout.delivery.presentation.DeliveryState
+import io.github.atwa.komposed.app.checkout.bill.BillState
+import io.github.atwa.komposed.app.checkout.delivery.DeliveryAddress
+import io.github.atwa.komposed.app.checkout.delivery.DeliveryState
 import org.junit.Test
 
 class CheckoutStateTest {
